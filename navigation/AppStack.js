@@ -10,7 +10,7 @@ import NewfeedScreen from '../screens/NewfeedScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import MessageScreen from '../screens/MessageScreen';
-import AddPost from '../screens/AddPost';
+import AddPostScreen from '../screens/AddPostScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -70,7 +70,7 @@ export const AppStack = () => {
         })}
       />
       <Tab.Screen
-        component={AddPost}
+        component={AddPostScreen}
         name="AddPost"
         options={({route}) => ({
           tabBarIcon: ({color, focused}) => (
