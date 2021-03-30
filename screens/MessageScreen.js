@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 
-const MessageScreen = () => {
+export const MessageScreen = () => {
   return (
     <View style={styles.container}>
       <Text>Message Screen</Text>
@@ -16,5 +16,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
-export default MessageScreen;

@@ -10,8 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import {FormInput} from '../components/FormInput';
-import {FormButton} from '../components/FormButton';
+import {FormButton, FormInput} from '../components';
 import {AuthContext} from '../navigation/AuthProvider';
 
 export const Login = ({navigation}) => {

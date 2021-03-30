@@ -6,11 +6,14 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import NewfeedScreen from '../screens/NewfeedScreen';
-import NotificationScreen from '../screens/NotificationScreen';
-import ProfileScreen from '../screens/ProfileScreen';
-import MessageScreen from '../screens/MessageScreen';
-import AddPostScreen from '../screens/AddPostScreen';
+import {
+  NewfeedScreen,
+  NotificationScreen,
+  ProfileScreen,
+  MessageScreen,
+  AddPostScreen,
+  EditProfile,
+} from '../screens';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -29,8 +32,18 @@ const FeedStack = ({navigation}) => (
         headerTitleAlign: 'center',
       }}
     />
-    <Stack.Screen component={NotificationScreen} name="noti" />
-    <Stack.Screen component={ProfileScreen} name="ProfileScreen" />
+    <Stack.Screen
+      component={ProfileScreen}
+      name="ProfileScreen"
+      options={{headerShown: false}}
+    />
+  </Stack.Navigator>
+);
+
+const ProfileStack = ({navigation}) => (
+  <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Screen component={ProfileScreen} name="Profile" />
+    <Stack.Screen component={EditProfile} name="EditProfile" />
   </Stack.Navigator>
 );
 
@@ -103,8 +116,9 @@ export const AppStack = () => {
           ),
         }}
       />
+
       <Tab.Screen
-        component={ProfileScreen}
+        component={ProfileStack}
         name="Profile"
         options={{
           tabBarIcon: ({color}) => (

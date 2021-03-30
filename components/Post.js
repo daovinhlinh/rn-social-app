@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import {
   View,
   Text,
@@ -8,73 +8,92 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import moment from 'moment';
+import firestore from '@react-native-firebase/firestore';
+
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {AuthContext} from '../navigation/AuthProvider';
 
 const {height, width} = Dimensions.get('window');
 
-const Post = ({navigation}) => {
+export const Post = ({item, onDelete, onPress}) => {
   const [ratio, setRatio] = useState();
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    Image.getSize(
-      'https://moonart.vn/wp-content/uploads/2020/02/4-dieu-can-xac-dinh-de-thiet-ke-poster-dep-hon1.jpg',
-      (imgWidth) => setRatio(imgWidth / width),
-    );
-    setLoading(false);
-  }, [loading]);
+  const [imgHeight, setImgHeight] = useState(0);
+  const {user} = useContext(AuthContext);
+
+  const {
+    userName,
+    userImg,
+    post,
+    likes,
+    liked,
+    comments,
+    postImg,
+    postTime,
+    userId,
+    id,
+  } = item;
+
+  const [handleLike, setHandleLiked] = useState(liked);
 
   return (
-    <>
-      {loading ? (
-        <View>
-          <Text>Loading</Text>
-        </View>
-      ) : (
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <View style={{flexDirection: 'row'}}>
-              <Image
-                source={require('../img/avatar.png')}
-                style={[styles.avatar]}
-              />
-              <View>
-                <Text style={styles.name}>Linh</Text>
-                <Text style={styles.time}>1 hour</Text>
-              </View>
-            </View>
-            <TouchableOpacity>
-              <Ionicons
-                name="ellipsis-horizontal-outline"
-                size={20}
-                color="#000"
-              />
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={{flexDirection: 'row'}}>
+          <Image source={{uri: userImg}} style={[styles.avatar]} />
+          <View style={{width: '80%'}}>
+            <TouchableOpacity onPress={onPress}>
+              <Text style={styles.name}>{userName}</Text>
             </TouchableOpacity>
+            <Text style={styles.time}>
+              {moment(postTime.toDate()).fromNow()}
+            </Text>
           </View>
-          <Text style={{marginVertical: 10, fontSize: 16}}>hello</Text>
+        </View>
+        {user.uid === userId ? (
+          <TouchableOpacity onPress={() => onDelete(id)}>
+            <Ionicons name="close-outline" size={30} color="#000" />
+          </TouchableOpacity>
+        ) : null}
+      </View>
+      <Text style={{marginVertical: 10, fontSize: 16}}>{post}</Text>
+      <View>
+        {postImg ? (
           <Image
             source={{
-              uri:
-                'https://fedudesign.vn/wp-content/uploads/2020/07/Web-1920-%E2%80%93-2-2.jpg',
+              uri: postImg,
             }}
-            style={{aspectRatio: ratio, borderRadius: 20}}
+            style={{
+              borderRadius: 20,
+              height: 250,
+              width: '100%',
+            }}
             resizeMode="cover"
           />
-          <View style={styles.actionBar}>
-            <TouchableOpacity style={styles.reactBtn}>
-              <Ionicons name="heart-outline" size={25} color="#AAA" />
-              <Text style={styles.reactCount}>100</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.reactBtn}>
-              <Ionicons name="chatbox-outline" size={25} color="#AAA" />
-              <Text style={styles.reactCount}>100</Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-              <Ionicons name="bookmark-outline" size={25} color="#AAA" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-    </>
+        ) : null}
+      </View>
+      <View style={styles.actionBar}>
+        <TouchableOpacity
+          style={styles.reactBtn}
+          onPress={() => setHandleLiked(!handleLike)}>
+          {handleLike ? (
+            <Ionicons name="heart" size={25} color="red" />
+          ) : (
+            <Ionicons name="heart-outline" size={25} color="#aaa" />
+          )}
+
+          <Text style={styles.reactCount}>{likes}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.reactBtn}>
+          <Ionicons name="chatbox-outline" size={25} color="#AAA" />
+          <Text style={styles.reactCount}>100</Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Ionicons name="bookmark-outline" size={25} color="#AAA" />
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
@@ -86,6 +105,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     paddingHorizontal: 10,
     paddingVertical: 10,
+    marginVertical: 5,
   },
   avatar: {
     width: 40,
@@ -96,7 +116,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     width: '100%',
   },
   name: {
@@ -121,5 +141,3 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
 });
-
-export default Post;

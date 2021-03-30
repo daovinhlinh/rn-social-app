@@ -1,9 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import {Login} from '../screens/Login';
-import {Register} from '../screens/Register';
-import {OnboardingScreen} from '../screens/OnboardingScreen';
+import {Login, Register, OnboardingScreen} from '../screens';
+
 import AsyncStorage from '@react-native-community/async-storage';
 import {GoogleSignin} from '@react-native-community/google-signin';
 

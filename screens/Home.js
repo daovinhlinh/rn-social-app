@@ -25,10 +25,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  square: {
-    height: 300,
-    width: 300,
-    backgroundColor: 'orange',
-    elevation: 10,
-  },
 });

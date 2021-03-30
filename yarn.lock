@@ -1194,18 +1194,28 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/masked-view/-/masked-view-0.1.10.tgz#5dda643e19e587793bc2034dd9bf7398ad43d401"
   integrity sha512-rk4sWFsmtOw8oyx8SD3KSvawwaK7gRBSEIy2TAwURyGt+3TizssXP1r8nx3zY+R7v2vYYHXZ+k2/GULAT/bcaQ==
 
-"@react-native-firebase/app@^11.0.0":
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-11.0.0.tgz#dee23fd79efa42c008306d2e9163afd9391f1567"
-  integrity sha512-jsystyGQX8Vx8w32YTySJGNwBNeRpEvUIxa+u7GWR8MngkwenyJOGwGT+5sHxZwJUGQl3X/7i1UKWzcrSDG5jg==
+"@react-native-firebase/app@^11.2.0":
+  version "11.2.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-11.2.0.tgz#5716bb264cf0a500fb40181bd338eb3067d36c94"
+  integrity sha512-TLrttjy6h5rhmRqnKFe67GNbYeB1VZphH5Gm+pYJzfIbMsh/m6q2Au1D4jmLnfjpqXAaTtAhetnODyT1TH/LzQ==
   dependencies:
     opencollective-postinstall "^2.0.1"
     superstruct "^0.6.2"
 
-"@react-native-firebase/auth@^11.0.0":
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/@react-native-firebase/auth/-/auth-11.0.0.tgz#1bf3afd53c88d7c6701440bb2530477fb4ac53ac"
-  integrity sha512-N5nsK0S6jWWUSGEzSNkCdlAzEdZRa5xA0VOklKlQ29uYiKwegog+bY0zxmDK+m6hqbLF0IABf4k6goZ/D0P9qg==
+"@react-native-firebase/auth@^11.2.0":
+  version "11.2.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/auth/-/auth-11.2.0.tgz#84ba11f0ef181d13a4b8daa110c9fbcc7d68eea4"
+  integrity sha512-lySvD0UrhQ+ERTp+ZViGPNWfKRLBZAfdK5RgdudbKyUqxiGS0Wx0lI6XMh0A7yT7yMKbhE2cSWAoJPYsEGG9mg==
+
+"@react-native-firebase/firestore@^11.2.0":
+  version "11.2.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/firestore/-/firestore-11.2.0.tgz#ebfe5b3824b216038656761518604ac66ee77ed4"
+  integrity sha512-UdSp/qn/jqe9a48ThscdgOg6rGFQLvoSqr+NKZz/TDImkCz0udobyYEMhLePyyzjsOcEtkmFkxw9640EKdzmwg==
+
+"@react-native-firebase/storage@^11.2.0":
+  version "11.2.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/storage/-/storage-11.2.0.tgz#f4642f0b5384505872b7e4c9e44e41a8df3603be"
+  integrity sha512-7ueX8WEqdI8yAsklK8oIHKFp5um1vWUOTNtF1RdJXzBKb6Uyu9uSDf3LunceyTsGv8es4t8tjb/3E+vfj65MXA==
 
 "@react-navigation/bottom-tabs@^5.11.8":
   version "5.11.8"
@@ -4475,7 +4485,7 @@ jest@^26.6.3:
     import-local "^3.0.2"
     jest-cli "^26.6.3"
 
-jetifier@^1.6.2:
+jetifier@^1.6.2, jetifier@^1.6.6:
   version "1.6.6"
   resolved "https://registry.yarnpkg.com/jetifier/-/jetifier-1.6.6.tgz#fec8bff76121444c12dc38d2dad6767c421dab68"
   integrity sha512-JNAkmPeB/GS2tCRqUzRPsTOHpGDah7xP18vGJfIjZC+W2sxEHbxgJxetIjIqhjQ3yYbYNEELkM/spKLtwoOSUQ==
@@ -5237,6 +5247,11 @@ mockdate@^3.0.2:
   resolved "https://registry.yarnpkg.com/mockdate/-/mockdate-3.0.2.tgz#a5a7bb5820da617747af424d7a4dcb22c6c03d79"
   integrity sha512-ldfYSUW1ocqSHGTK6rrODUiqAFPGAg0xaHqYJ5tvj1hQyFsjuHpuWgWFTZWwDVlzougN/s2/mhDr8r5nY5xDpA==
 
+moment@^2.29.1:
+  version "2.29.1"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
+  integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
+
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
@@ -5911,15 +5926,22 @@ react-native-gesture-handler@^1.10.3:
     invariant "^2.2.4"
     prop-types "^15.7.2"
 
-react-native-image-crop-picker@^0.36.0:
-  version "0.36.0"
-  resolved "https://registry.yarnpkg.com/react-native-image-crop-picker/-/react-native-image-crop-picker-0.36.0.tgz#adf5a5677c3ae0e0bdaa18c73d880db2190e3023"
-  integrity sha512-1S8+0EZJmUMWMcdo2tTadqIIsJo7aPxPed0P7Cop3DhBqEeYrAWfgdrJq9VoTXI+cIrOOcTAxn4NZPz+DQEn7g==
+react-native-image-crop-picker@0.35.1:
+  version "0.35.1"
+  resolved "https://registry.yarnpkg.com/react-native-image-crop-picker/-/react-native-image-crop-picker-0.35.1.tgz#590b6ed7af7b63a505132c73819c9166347bf1e3"
+  integrity sha512-5HY2NnkmgL/Nw1IpU9CkTWj4qgFYPF8KxDaHoaufEWNjvOCRGziMoui55cO7k4KdwsIKmb1UbDzkCYemJqcyow==
 
 react-native-iphone-x-helper@^1.3.0:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/react-native-iphone-x-helper/-/react-native-iphone-x-helper-1.3.1.tgz#20c603e9a0e765fd6f97396638bdeb0e5a60b010"
   integrity sha512-HOf0jzRnq2/aFUcdCJ9w9JGzN3gdEg0zFE4FyYlp4jtidqU03D5X7ZegGKfT1EWteR0gPBGp9ye5T5FvSWi9Yg==
+
+react-native-loading-spinner-overlay@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-loading-spinner-overlay/-/react-native-loading-spinner-overlay-2.0.0.tgz#30934b6f07cb39711020d6b422a02a2a56763a73"
+  integrity sha512-V38M+N1Wk9GlpbfrD6znsJA1K2+09b3naxq3UjDjqNTA3MOBfj4W87alKSI3P+4ZawczQASTv2fTzhEQ7Z+SVA==
+  dependencies:
+    prop-types "^15.6.2"
 
 react-native-onboarding-swiper@^1.1.4:
   version "1.1.4"

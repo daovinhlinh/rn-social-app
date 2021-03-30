@@ -11,6 +11,8 @@ export const FormInput = (props) => {
     textChange,
     value,
     secure,
+    bgColor,
+    color,
   } = props;
   return (
     <>
@@ -18,12 +20,18 @@ export const FormInput = (props) => {
         keyboardType={keyboardType}
         placeholder={placeholder}
         autoCorrect={autoCorrect}
-        style={styles.btn}
+        style={[
+          styles.btn,
+          {
+            backgroundColor: bgColor || 'transparent',
+            color: color || 'rgba(255,255,255,1)',
+          },
+        ]}
         onChangeText={(text) => textChange(text)}
         value={value}
         secureTextEntry={secure}
         multiline={false}
-        placeholderTextColor="rgba(255,255,255,0.6)"
+        placeholderTextColor="#aaa"
       />
     </>
   );
@@ -35,7 +43,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 10,
     fontSize: 18,
-    backgroundColor: 'transparent',
     borderColor: 'rgba(255,255,255,0.6)',
     borderBottomWidth: 0.5,
     marginBottom: 20,

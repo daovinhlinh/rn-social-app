@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, Image} from 'react-native';
-import {SignInButton} from '../components/FormButton';
+import React from 'react';
+import {StyleSheet, Image} from 'react-native';
+
 import Onboarding from 'react-native-onboarding-swiper';
 
 export const OnboardingScreen = ({navigation}) => {

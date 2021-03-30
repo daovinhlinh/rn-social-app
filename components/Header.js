@@ -11,23 +11,29 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const {width, height} = Dimensions.get('window');
 
-const Header = ({header, btnText, navigation}) => {
+export const Header = ({header, btnText, bgColor, navigation, onPress}) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={{flex: 1}} onPress={() => navigation.goBack()}>
         <Ionicons name="arrow-back-outline" size={25} color="#000" />
       </TouchableOpacity>
       <Text style={styles.header}>{header}</Text>
-      <TouchableOpacity style={{flex: 1}}>
-        <Text style={styles.btnText}>{btnText}</Text>
-      </TouchableOpacity>
+      {btnText ? (
+        <TouchableOpacity style={{flex: 1}} onPress={onPress}>
+          <Text style={[styles.btnText, {backgroundColor: bgColor}]}>
+            {btnText}
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        <View style={{flex: 1}}></View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: '8%',
+    height: 60,
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -46,15 +52,15 @@ const styles = StyleSheet.create({
   btnText: {
     backgroundColor: '#3360ff',
     textAlign: 'center',
-    width: 70,
+    // width: 80,
     alignSelf: 'flex-end',
     paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: 10,
+    borderRadius: 10,
     fontWeight: 'bold',
     color: '#fff',
     fontSize: 16,
     textTransform: 'uppercase',
+    elevation: 10,
   },
 });
-
-export default Header;

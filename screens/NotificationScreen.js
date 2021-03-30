@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 
-const NotificationScreen = () => {
+export const NotificationScreen = () => {
   return (
     <View style={styles.container}>
       <Text>Notification screen</Text>
@@ -16,5 +16,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
-export default NotificationScreen;
