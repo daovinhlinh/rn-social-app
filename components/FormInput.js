@@ -13,9 +13,19 @@ export const FormInput = (props) => {
     secure,
     bgColor,
     color,
+    subText,
   } = props;
   return (
-    <>
+    <View>
+      <Text
+        style={{
+          paddingLeft: 10,
+          color: '#acacac',
+          textTransform: 'capitalize',
+          fontWeight: 'bold',
+        }}>
+        {subText}
+      </Text>
       <TextInput
         keyboardType={keyboardType}
         placeholder={placeholder}
@@ -33,7 +43,7 @@ export const FormInput = (props) => {
         multiline={false}
         placeholderTextColor="#aaa"
       />
-    </>
+    </View>
   );
 };
 
@@ -43,7 +53,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 10,
     fontSize: 18,
-    borderColor: 'rgba(255,255,255,0.6)',
+    borderColor: '#a7a7a7',
     borderBottomWidth: 0.5,
     marginBottom: 20,
     color: 'rgba(255,255,255,1)',

@@ -107,6 +107,16 @@ export const NewfeedScreen = ({navigation}) => {
     setDeleted(false);
   }, [deleted]);
 
+  const renderItem = ({item}) => (
+    <Post
+      item={item}
+      onDelete={handleDelete}
+      onPress={() =>
+        navigation.navigate('ProfileScreen', {userId: item.userId})
+      }
+    />
+  );
+
   return (
     <>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
@@ -121,17 +131,13 @@ export const NewfeedScreen = ({navigation}) => {
       ) : (
         <FlatList
           data={posts}
-          renderItem={({item}) => (
-            <Post
-              item={item}
-              onDelete={handleDelete}
-              onPress={() =>
-                navigation.navigate('ProfileScreen', {userId: item.userId})
-              }
-            />
-          )}
+          renderItem={renderItem}
           keyExtractor={(post) => post.id}
           showsVerticalScrollIndicator={false}
+          removeClippedSubviews={true}
+          updateCellsBatchingPeriod={100}
+          initialNumToRender={5}
+          maxToRenderPerBatch={5}
         />
       )}
     </>

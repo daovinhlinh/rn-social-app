@@ -34,18 +34,12 @@ export const AddPostScreen = ({navigation}) => {
   const [post, setPost] = useState(null);
   const {user} = useContext(AuthContext);
 
-  useEffect(() => {
-    console.log(user);
-  }, []);
-
   const takePhotoFromCamera = () => {
     ImagePicker.openCamera({
       width: width,
       height: height,
     }).then((image) => {
       const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
-      console.log(imageUri);
-      console.log(image);
       setImage(imageUri);
     });
   };
@@ -76,7 +70,6 @@ export const AddPostScreen = ({navigation}) => {
         comments: null,
       })
       .then(() => {
-        console.log('Post added!');
         Alert.alert('Uploaded', 'Your post has been uploaded!');
         setLoading(false);
         setPost(null);
