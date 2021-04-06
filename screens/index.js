@@ -6,4 +6,5 @@ export * from './NotificationScreen';
 export * from './OnboardingScreen';
 export * from './ProfileScreen';
 export * from './Login';
+export * from './Comment';
 export * from './Register';

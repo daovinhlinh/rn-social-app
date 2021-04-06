@@ -1,13 +1,6 @@
 import React from 'react';
 
-import {
-  View,
-  Text,
-  Button,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-} from 'react-native';
+import {Text, StyleSheet, Dimensions, TouchableOpacity} from 'react-native';
 
 const {width, height} = Dimensions.get('window');
 
@@ -34,7 +27,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 16,
     marginBottom: 10,
-    // elevation: 8,
   },
   btnText: {
     fontSize: 18,

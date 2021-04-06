@@ -51,14 +51,14 @@ export const AddPostScreen = ({navigation}) => {
       multiple: true,
     }).then((image) => {
       const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
-      console.log(image);
+      console.log(imageUri);
+      // setImage(imageUri);
     });
   };
 
   const submitPost = async () => {
-    let imgUrl = await postImage();
-
     setLoading(true);
+    let imgUrl = await postImage();
     firestore()
       .collection('posts')
       .add({
@@ -66,8 +66,8 @@ export const AddPostScreen = ({navigation}) => {
         post: post,
         postImg: imgUrl,
         postTime: firestore.Timestamp.fromDate(new Date()),
-        likes: null,
-        comments: null,
+        likes: 0,
+        comments: 0,
       })
       .then(() => {
         Alert.alert('Uploaded', 'Your post has been uploaded!');

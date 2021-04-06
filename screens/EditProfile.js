@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 
 import {
   View,
@@ -7,7 +7,6 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  Button,
 } from 'react-native';
 import {Header, FormInput, FormButton} from '../components';
 import {AuthContext} from '../navigation/AuthProvider';
@@ -16,20 +15,24 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 // import Animated from 'react-native-reanimated';
 import ImagePicker from 'react-native-image-crop-picker';
 import BottomSheet from 'reanimated-bottom-sheet';
+import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
+import Animated from 'react-native-reanimated';
 
 const {width, height} = Dimensions.get('window');
 
 export const EditProfile = ({navigation, route}) => {
-  const [fullName, setFullName] = useState('');
-  const [description, setDescription] = useState('');
-  const [phone, setPhone] = useState('');
+  const {user} = useContext(AuthContext);
   const [image, setImage] = useState('');
+  const [userData, setUserData] = useState(null);
+  const [transferred, setTransferred] = useState(0);
 
   const takePhotoFromCamera = () => {
     ImagePicker.openCamera({
-      width: width,
-      height: height,
-      compressImageQuality: 0.7,
+      width: 500,
+      height: 500,
+      compressImageQuality: 0.6,
+      cropping: true,
     }).then((image) => {
       const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
       setImage(imageUri);
@@ -41,13 +44,29 @@ export const EditProfile = ({navigation, route}) => {
     ImagePicker.openPicker({
       width: width,
       height: height,
-      multiple: true,
     }).then((image) => {
       const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
       console.log(imageUri);
       sheetRef.current.snapTo(1);
     });
   };
+
+  const getUser = async () => {
+    const currentUser = await firestore()
+      .collection('users')
+      .doc(user.uid)
+      .get()
+      .then((snapshot) => {
+        if (snapshot.exists) {
+          console.log(snapshot.data());
+          setUserData(snapshot.data());
+        }
+      });
+  };
+
+  useEffect(() => {
+    getUser();
+  }, []);
 
   const renderInner = () => (
     <View
@@ -115,7 +134,66 @@ export const EditProfile = ({navigation, route}) => {
     </View>
   );
 
+  const postImage = async () => {
+    if (image === null) return null;
+    const uploadUri = image;
+    let fileName = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+
+    const extension = fileName.split('.').pop();
+    const name = fileName.split('.').slice(0, -1).join('.');
+    fileName = name + Date.now() + '.' + extension;
+
+    const storageRef = storage().ref(`photo/${fileName}`);
+    const task = storageRef.putFile(uploadUri);
+
+    // Set transferred state
+    task.on('state_changed', (taskSnapshot) => {
+      setTransferred(
+        Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
+          100,
+      );
+    });
+
+    setTransferred(0);
+
+    try {
+      await task;
+
+      const imgUrl = await storageRef.getDownloadURL();
+      setImage(null);
+
+      return imgUrl;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  };
+
+  const handleUpdate = async () => {
+    let imgUrl = await postImage();
+
+    if (imgUrl === null && userData.userImg) {
+      imgUrl = userData.userImg;
+    }
+
+    firestore()
+      .collection('users')
+      .doc(user.uid)
+      .update({
+        userImg: imgUrl,
+        fname: userData.fname,
+        lname: userData.lname,
+        phone: userData.phone,
+        introduction: userData.introduction,
+        city: userData.city,
+      })
+      .then(() => {
+        alert('Updated!');
+      });
+  };
+
   const sheetRef = React.useRef(null);
+  const fall = new Animated.Value(1);
 
   return (
     <View style={styles.container}>
@@ -127,74 +205,103 @@ export const EditProfile = ({navigation, route}) => {
         renderContent={renderInner}
         renderHeader={renderHeader}
         initialSnap={1}
+        callbackNode={fall}
       />
-      <View
+      <Animated.View
         style={{
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          flex: 1,
+          margin: 20,
+          opacity: Animated.add(0.1, Animated.multiply(fall, 1.0)),
         }}>
-        <View style={{alignItems: 'flex-end', justifyContent: 'flex-end'}}>
-          <Image
-            source={{uri: route.params.userImg}}
-            style={{width: 100, height: 100, borderRadius: 90}}
-          />
-          <TouchableOpacity
-            onPress={() => sheetRef.current.snapTo(0)}
-            style={{
-              position: 'absolute',
-              backgroundColor: 'black',
-              borderRadius: 90,
-            }}>
-            <Ionicons
-              name="camera"
-              size={25}
-              color="white"
-              style={{padding: 5}}
+        <View
+          style={{
+            justifyContent: 'space-around',
+            alignItems: 'center',
+            flex: 1,
+          }}>
+          <View style={{alignItems: 'flex-end', justifyContent: 'flex-end'}}>
+            <Image
+              source={{
+                uri: image
+                  ? image
+                  : userData
+                  ? userData.userImg ||
+                    'https://www.w3schools.com/howto/img_avatar.png'
+                  : 'https://www.w3schools.com/howto/img_avatar.png',
+              }}
+              style={{width: 100, height: 100, borderRadius: 90}}
             />
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => sheetRef.current.snapTo(0)}
+              style={{
+                position: 'absolute',
+                backgroundColor: 'black',
+                borderRadius: 90,
+              }}>
+              <Ionicons
+                name="camera"
+                size={25}
+                color="white"
+                style={{padding: 5}}
+              />
+            </TouchableOpacity>
+          </View>
+          <View>
+            <FormInput
+              placeholder="Enter your first name"
+              textChange={(text) => setUserData({...userData, fname: text})}
+              value={userData ? userData.fname : ''}
+              secureTextEntry={false}
+              bgColor={colorStyles.white}
+              color="#000"
+              icon="person"
+            />
+            <FormInput
+              placeholder="Enter your last name"
+              textChange={(text) => setUserData({...userData, lname: text})}
+              value={userData ? userData.lname : ''}
+              secureTextEntry={false}
+              bgColor={colorStyles.white}
+              color="#000"
+              icon="person"
+            />
+            <FormInput
+              placeholder="Enter your introduction"
+              textChange={(text) =>
+                setUserData({...userData, introduction: text})
+              }
+              value={userData ? userData.introduction : ''}
+              secureTextEntry={false}
+              bgColor={colorStyles.white}
+              color="#000"
+              icon="document-text"
+            />
+            <FormInput
+              placeholder="Enter your phone number"
+              textChange={(text) => setUserData({...userData, phone: text})}
+              value={userData ? userData.phone : ''}
+              secureTextEntry={false}
+              bgColor={colorStyles.white}
+              color="#000"
+              icon="call"
+            />
+            <FormInput
+              placeholder="Enter your city"
+              textChange={(text) => setUserData({...userData, city: text})}
+              value={userData ? userData.city : ''}
+              secureTextEntry={false}
+              bgColor={colorStyles.white}
+              color="#000"
+              icon="globe"
+            />
+          </View>
+          <FormButton
+            title="Update profile"
+            color="#fff"
+            backgroundColor="#16b4f2"
+            onPress={handleUpdate}
+          />
         </View>
-        <View>
-          <FormInput
-            keyboardType="default"
-            placeholder="Enter your name"
-            autoCorrect={false}
-            textChange={(text) => setFullName(text)}
-            value={fullName}
-            secureTextEntry={false}
-            bgColor={colorStyles.white}
-            color="#000"
-            subText="Full name"
-          />
-          <FormInput
-            keyboardType="default"
-            placeholder="Enter your introduction"
-            autoCorrect={false}
-            textChange={(text) => setDescription(text)}
-            value={description}
-            secureTextEntry={false}
-            bgColor={colorStyles.white}
-            color="#000"
-            subText="Introduction"
-          />
-          <FormInput
-            keyboardType="default"
-            placeholder="Enter your phone number"
-            autoCorrect={false}
-            textChange={(text) => setPhone(text)}
-            value={phone}
-            secureTextEntry={false}
-            bgColor={colorStyles.white}
-            color="#000"
-            subText="Phone number"
-          />
-        </View>
-        <FormButton
-          title="Update profile"
-          color="#fff"
-          backgroundColor="#16b4f2"
-        />
-      </View>
+      </Animated.View>
     </View>
   );
 };
