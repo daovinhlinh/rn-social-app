@@ -79,13 +79,29 @@ export const ProfileScreen = ({navigation, route}) => {
           const id = doc.id;
           list.push(id);
         });
-        console.log(list.length);
+
         setFollowing(list.length);
         if (list.indexOf(route.params?.userId) > -1) {
           setFollow(true);
         } else {
           setFollow(false);
         }
+      });
+  };
+
+  const countFollowing = () => {
+    let list = [];
+
+    firestore()
+      .collection('following')
+      .doc(route.params ? route.params.userId : user.uid)
+      .collection('userFollowing')
+      .onSnapshot((snapshot) => {
+        snapshot.forEach((doc) => {
+          const id = doc.id;
+          list.push(id);
+        });
+        setFollowing(list.length);
       });
   };
 
@@ -170,7 +186,7 @@ export const ProfileScreen = ({navigation, route}) => {
   useEffect(() => {
     getUser();
     fetchPost();
-    fetchFollowing();
+    countFollowing();
   }, []);
 
   useEffect(() => {
@@ -178,6 +194,7 @@ export const ProfileScreen = ({navigation, route}) => {
       getUser();
       fetchPost();
       fetchFollowing();
+      countFollowing();
     });
   }, [navigation]);
 

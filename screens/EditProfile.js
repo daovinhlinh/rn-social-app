@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import {Header, FormInput, FormButton} from '../components';
+import {Header, FormInput, FormButton, DismissKeyboard} from '../components';
 import {AuthContext} from '../navigation/AuthProvider';
 import {colorStyles} from '../styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -58,7 +58,6 @@ export const EditProfile = ({navigation, route}) => {
       .get()
       .then((snapshot) => {
         if (snapshot.exists) {
-          console.log(snapshot.data());
           setUserData(snapshot.data());
         }
       });
@@ -196,113 +195,129 @@ export const EditProfile = ({navigation, route}) => {
   const fall = new Animated.Value(1);
 
   return (
-    <View style={styles.container}>
-      <Header header="Edit Profile" btnText={null} navigation={navigation} />
-      <BottomSheet
-        ref={sheetRef}
-        snapPoints={[300, -5]}
-        borderRadius={10}
-        renderContent={renderInner}
-        renderHeader={renderHeader}
-        initialSnap={1}
-        callbackNode={fall}
-      />
-      <Animated.View
-        style={{
-          margin: 20,
-          opacity: Animated.add(0.1, Animated.multiply(fall, 1.0)),
-        }}>
-        <View
+    <DismissKeyboard>
+      <View style={styles.container}>
+        <Header header="Edit Profile" btnText={null} navigation={navigation} />
+        <BottomSheet
+          ref={sheetRef}
+          snapPoints={[300, -5]}
+          borderRadius={10}
+          renderContent={renderInner}
+          renderHeader={renderHeader}
+          initialSnap={1}
+          callbackNode={fall}
+        />
+        <Animated.View
           style={{
-            justifyContent: 'space-around',
-            alignItems: 'center',
-            flex: 1,
+            opacity: Animated.add(0.1, Animated.multiply(fall, 1.0)),
           }}>
-          <View style={{alignItems: 'flex-end', justifyContent: 'flex-end'}}>
-            <Image
-              source={{
-                uri: image
-                  ? image
-                  : userData
-                  ? userData.userImg ||
-                    'https://www.w3schools.com/howto/img_avatar.png'
-                  : 'https://www.w3schools.com/howto/img_avatar.png',
-              }}
-              style={{width: 100, height: 100, borderRadius: 90}}
-            />
-            <TouchableOpacity
-              onPress={() => sheetRef.current.snapTo(0)}
+          <View
+            style={{
+              justifyContent: 'space-around',
+              alignItems: 'center',
+              flex: 1,
+              paddingBottom: 25,
+            }}>
+            <View
               style={{
-                position: 'absolute',
-                backgroundColor: 'black',
-                borderRadius: 90,
+                alignItems: 'flex-end',
+                justifyContent: 'flex-end',
+                marginBottom: 50,
               }}>
-              <Ionicons
-                name="camera"
-                size={25}
-                color="white"
-                style={{padding: 5}}
+              <Image
+                source={{
+                  uri: image
+                    ? image
+                    : userData
+                    ? userData.userImg ||
+                      'https://www.w3schools.com/howto/img_avatar.png'
+                    : 'https://www.w3schools.com/howto/img_avatar.png',
+                }}
+                style={{width: 100, height: 100, borderRadius: 90}}
               />
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => sheetRef.current.snapTo(0)}
+                style={{
+                  position: 'absolute',
+                  backgroundColor: 'black',
+                  borderRadius: 90,
+                }}>
+                <Ionicons
+                  name="camera"
+                  size={25}
+                  color="white"
+                  style={{padding: 5}}
+                />
+              </TouchableOpacity>
+            </View>
+            <View>
+              <FormInput
+                placeholder="Enter your first name"
+                textChange={(text) => setUserData({...userData, fname: text})}
+                value={userData ? userData.fname : ''}
+                secureTextEntry={false}
+                bgColor={colorStyles.white}
+                color="#000"
+                icon="person"
+              />
+              <FormInput
+                placeholder="Enter your last name"
+                textChange={(text) => setUserData({...userData, lname: text})}
+                value={userData ? userData.lname : ''}
+                secureTextEntry={false}
+                bgColor={colorStyles.white}
+                color="#000"
+                icon="person"
+              />
+              <FormInput
+                placeholder="Enter your introduction"
+                textChange={(text) =>
+                  setUserData({...userData, introduction: text})
+                }
+                value={userData ? userData.introduction : ''}
+                secureTextEntry={false}
+                bgColor={colorStyles.white}
+                color="#000"
+                icon="document-text"
+              />
+              <FormInput
+                placeholder="Enter your phone number"
+                textChange={(text) => setUserData({...userData, phone: text})}
+                value={userData ? userData.phone : ''}
+                secureTextEntry={false}
+                bgColor={colorStyles.white}
+                color="#000"
+                icon="call"
+              />
+              <FormInput
+                placeholder="Enter your city"
+                textChange={(text) => setUserData({...userData, city: text})}
+                value={userData ? userData.city : ''}
+                secureTextEntry={false}
+                bgColor={colorStyles.white}
+                color="#000"
+                icon="globe"
+              />
+              <FormInput
+                placeholder="Enter your city"
+                // textChange={(text) => setUserData({...userData, city: text})}
+                // value={userData ? userData.city : ''}
+                secureTextEntry={false}
+                bgColor={colorStyles.white}
+                color="#000"
+                icon="globe"
+              />
+            </View>
+            <FormButton
+              title="Update profile"
+              color="#fff"
+              backgroundColor="#16b4f2"
+              onPress={handleUpdate}
+            />
           </View>
-          <View>
-            <FormInput
-              placeholder="Enter your first name"
-              textChange={(text) => setUserData({...userData, fname: text})}
-              value={userData ? userData.fname : ''}
-              secureTextEntry={false}
-              bgColor={colorStyles.white}
-              color="#000"
-              icon="person"
-            />
-            <FormInput
-              placeholder="Enter your last name"
-              textChange={(text) => setUserData({...userData, lname: text})}
-              value={userData ? userData.lname : ''}
-              secureTextEntry={false}
-              bgColor={colorStyles.white}
-              color="#000"
-              icon="person"
-            />
-            <FormInput
-              placeholder="Enter your introduction"
-              textChange={(text) =>
-                setUserData({...userData, introduction: text})
-              }
-              value={userData ? userData.introduction : ''}
-              secureTextEntry={false}
-              bgColor={colorStyles.white}
-              color="#000"
-              icon="document-text"
-            />
-            <FormInput
-              placeholder="Enter your phone number"
-              textChange={(text) => setUserData({...userData, phone: text})}
-              value={userData ? userData.phone : ''}
-              secureTextEntry={false}
-              bgColor={colorStyles.white}
-              color="#000"
-              icon="call"
-            />
-            <FormInput
-              placeholder="Enter your city"
-              textChange={(text) => setUserData({...userData, city: text})}
-              value={userData ? userData.city : ''}
-              secureTextEntry={false}
-              bgColor={colorStyles.white}
-              color="#000"
-              icon="globe"
-            />
-          </View>
-          <FormButton
-            title="Update profile"
-            color="#fff"
-            backgroundColor="#16b4f2"
-            onPress={handleUpdate}
-          />
-        </View>
-      </Animated.View>
-    </View>
+        </Animated.View>
+      </View>
+    </DismissKeyboard>
   );
 };
 

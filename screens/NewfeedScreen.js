@@ -135,7 +135,7 @@ export const NewfeedScreen = ({navigation}) => {
     <View
       style={{
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: '#E0E1E5',
       }}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       {loading ? (

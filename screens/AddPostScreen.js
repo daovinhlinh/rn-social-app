@@ -9,6 +9,8 @@ import {
   Pressable,
   Platform,
   Alert,
+  TouchableOpacity,
+  FlatList,
 } from 'react-native';
 
 import storage from '@react-native-firebase/storage';
@@ -20,15 +22,25 @@ import Spinner from 'react-native-loading-spinner-overlay';
 
 import {Header} from '../components';
 import {AuthContext} from '../navigation/AuthProvider.js';
+import {colorStyles} from '../styles/ColorStyles';
 
 const {width, height} = Dimensions.get('window');
 
-const ImageContainer = ({image}) => {
-  return <Image source={{uri: image}} style={{width: 100, height: 100}} />;
+const ImageContainer = ({image, onDelete}) => {
+  return (
+    <View style={{width: width * 0.25}}>
+      <TouchableOpacity
+        style={{zIndex: 1, top: 30, alignSelf: 'flex-end'}}
+        onPress={onDelete}>
+        <Ionicons name="close-circle" color="#fff" size={25} />
+      </TouchableOpacity>
+      <Image source={{uri: image}} style={{width: '100%', height: 100}} />
+    </View>
+  );
 };
 
 export const AddPostScreen = ({navigation}) => {
-  const [image, setImage] = useState('');
+  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [transferred, setTransferred] = useState(0);
   const [post, setPost] = useState(null);
@@ -38,9 +50,13 @@ export const AddPostScreen = ({navigation}) => {
     ImagePicker.openCamera({
       width: width,
       height: height,
+      multiple: true,
     }).then((image) => {
       const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
-      setImage(imageUri);
+      let newData = [...images];
+      newData.push(imageUri);
+      setImages(newData);
+      console.log(image);
     });
   };
 
@@ -81,8 +97,9 @@ export const AddPostScreen = ({navigation}) => {
   };
 
   const postImage = async () => {
-    if (image === null) return null;
-    const uploadUri = image;
+    if (images === null) return null;
+
+    const uploadUri = images[0];
     let fileName = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
 
     const extension = fileName.split('.').pop();
@@ -106,7 +123,7 @@ export const AddPostScreen = ({navigation}) => {
       await task;
 
       const imgUrl = await storageRef.getDownloadURL();
-      setImage(null);
+      setImages(null);
 
       return imgUrl;
     } catch (error) {
@@ -120,9 +137,9 @@ export const AddPostScreen = ({navigation}) => {
       <Header
         header="Add post"
         btnText="post"
-        bgColor={image ? '#3360ff' : '#acacac' || post ? '#3360ff' : '#acacac'}
+        bgColor={images ? '#3360ff' : '#acacac' || post ? '#3360ff' : '#acacac'}
         navigation={navigation}
-        onPress={image ? submitPost : null || post ? submitPost : null}
+        onPress={images ? submitPost : null || post ? submitPost : null}
       />
       <Spinner
         visible={loading}
@@ -158,7 +175,19 @@ export const AddPostScreen = ({navigation}) => {
         />
       </View>
       <View>
-        {image ? <ImageContainer image={image} /> : null}
+        <View style={{flexDirection: 'row', width: width}}>
+          <FlatList
+            data={images}
+            renderItem={({item}) => (
+              <ImageContainer
+                image={item}
+                onDelete={() => setImages(images.filter((img) => img != item))}
+              />
+            )}
+            legacyImplementation={true}
+            horizontal={true}
+          />
+        </View>
         <View style={styles.attachBar}>
           <Pressable
             onPress={takePhotoFromLibrary}

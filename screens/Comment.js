@@ -12,9 +12,11 @@ import {
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import firestore from '@react-native-firebase/firestore';
+import firestore, {firebase} from '@react-native-firebase/firestore';
 import {colorStyles} from '../styles';
 import {Header} from '../components';
+import {useContext} from 'react';
+import {AuthContext} from '../navigation/AuthProvider';
 
 const {width, height} = Dimensions.get('window');
 
@@ -22,6 +24,7 @@ export const Comment = ({navigation, route}) => {
   const [comments, setComments] = useState([]);
   const [postId, setPostId] = useState('');
   const [text, setText] = useState('');
+  const {user} = useContext(AuthContext);
 
   const fetchComment = () => {
     let list = [];
@@ -30,10 +33,15 @@ export const Comment = ({navigation, route}) => {
         .collection('posts')
         .doc(route.params.postId)
         .collection('comments')
+        .orderBy('createdAt', 'asc')
         .get()
         .then((snapshot) => {
           snapshot.forEach((doc) => {
-            list.push({id: doc.id, text: doc.data().text});
+            list.push({
+              id: doc.id,
+              text: doc.data().text,
+              creator: doc.data().creator,
+            });
           });
           setComments(list);
         });
@@ -45,8 +53,11 @@ export const Comment = ({navigation, route}) => {
       .collection('posts')
       .doc(route.params.postId)
       .collection('comments')
-      .add({text: text})
-      .then(() => console.log('comment'));
+      .add({
+        text: text,
+        creator: user.uid,
+        createdAt: firestore.Timestamp.fromDate(new Date()),
+      });
   };
 
   useEffect(() => {
@@ -58,9 +69,15 @@ export const Comment = ({navigation, route}) => {
       <Header header="Comment" navigation={navigation} />
       <FlatList
         horizontal={false}
+        style={{width: '100%'}}
         data={comments}
         renderItem={({item}) => (
-          <View>
+          <View
+            style={{
+              justifyContent: 'space-between',
+              paddingHorizontal: 10,
+            }}>
+            <Text>{item.creator}</Text>
             <Text>{item.text}</Text>
           </View>
         )}
@@ -98,5 +115,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colorStyles.white,
     paddingBottom: 15,
+    width: '100%',
   },
 });

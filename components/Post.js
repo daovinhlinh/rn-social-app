@@ -67,7 +67,12 @@ export const Post = ({item, onDelete, onLike, onPress, onComment}) => {
               </TouchableOpacity>
             ) : null}
           </View>
-          <Text style={{marginVertical: 10, fontSize: 16}}>{post}</Text>
+          <>
+            {post ? (
+              <Text style={{marginBottom: 5, fontSize: 16}}>{post}</Text>
+            ) : null}
+          </>
+
           <View>
             {postImg ? (
               <Image
@@ -110,16 +115,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     backgroundColor: '#fff',
-    marginBottom: 30,
+    marginBottom: 10,
     paddingHorizontal: 10,
     paddingVertical: 10,
-    marginVertical: 5,
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 99,
     marginRight: 10,
+    marginBottom: 10,
   },
   header: {
     flexDirection: 'row',
