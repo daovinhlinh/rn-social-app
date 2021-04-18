@@ -46,7 +46,6 @@ export const EditProfile = ({navigation, route}) => {
       height: height,
     }).then((image) => {
       const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
-      console.log(imageUri);
       sheetRef.current.snapTo(1);
     });
   };

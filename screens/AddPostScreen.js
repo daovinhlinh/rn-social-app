@@ -43,8 +43,21 @@ export const AddPostScreen = ({navigation}) => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [transferred, setTransferred] = useState(0);
+  const [userData, setUserdata] = useState(null);
   const [post, setPost] = useState(null);
   const {user} = useContext(AuthContext);
+
+  const getUser = async () => {
+    await firestore()
+      .collection('users')
+      .doc(user.uid)
+      .get()
+      .then((snapshot) => {
+        if (snapshot.exists) {
+          setUserdata(snapshot.data());
+        }
+      });
+  };
 
   const takePhotoFromCamera = () => {
     ImagePicker.openCamera({
@@ -56,7 +69,6 @@ export const AddPostScreen = ({navigation}) => {
       let newData = [...images];
       newData.push(imageUri);
       setImages(newData);
-      console.log(image);
     });
   };
 
@@ -98,40 +110,45 @@ export const AddPostScreen = ({navigation}) => {
 
   const postImage = async () => {
     if (images === null) return null;
+    let urlData = [];
+    for (let i = 0; i < images.length; i++) {
+      const uploadUri = images[i];
+      let fileName = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
 
-    const uploadUri = images[0];
-    let fileName = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+      const extension = fileName.split('.').pop();
+      const name = fileName.split('.').slice(0, -1).join('.');
+      fileName = name + Date.now() + '.' + extension;
 
-    const extension = fileName.split('.').pop();
-    const name = fileName.split('.').slice(0, -1).join('.');
-    fileName = name + Date.now() + '.' + extension;
+      const storageRef = storage().ref(`photo/${fileName}`);
+      const task = storageRef.putFile(uploadUri);
 
-    const storageRef = storage().ref(`photo/${fileName}`);
-    const task = storageRef.putFile(uploadUri);
+      // Set transferred state
+      task.on('state_changed', (taskSnapshot) => {
+        setTransferred(
+          Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
+            100,
+        );
+      });
 
-    // Set transferred state
-    task.on('state_changed', (taskSnapshot) => {
-      setTransferred(
-        Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
-          100,
-      );
-    });
+      setTransferred(0);
 
-    setTransferred(0);
+      try {
+        await task;
 
-    try {
-      await task;
-
-      const imgUrl = await storageRef.getDownloadURL();
-      setImages(null);
-
-      return imgUrl;
-    } catch (error) {
-      console.log(error);
-      return null;
+        const imgUrl = await storageRef.getDownloadURL();
+        urlData.push(imgUrl);
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
     }
+    setImages(null);
+    return urlData;
   };
 
+  useEffect(() => {
+    getUser();
+  }, []);
   return (
     <View style={styles.container}>
       <Header
@@ -156,7 +173,9 @@ export const AddPostScreen = ({navigation}) => {
               style={[styles.avatar]}
             />
             <View>
-              <Text style={styles.name}>Linh</Text>
+              <Text style={styles.name}>
+                {userData ? `${userData.fname} ${userData.lname}` : 'hello'}
+              </Text>
               <Text style={styles.time}>1 hour</Text>
             </View>
           </View>

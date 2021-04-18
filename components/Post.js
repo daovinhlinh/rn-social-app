@@ -1,5 +1,14 @@
 import React, {useEffect, useState, useContext} from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  FlatList,
+} from 'react-native';
+
+import Swiper from 'react-native-swiper';
 
 import moment from 'moment';
 import firestore from '@react-native-firebase/firestore';
@@ -73,19 +82,46 @@ export const Post = ({item, onDelete, onLike, onPress, onComment}) => {
             ) : null}
           </>
 
+          {/* <FlatList
+                data={postImg}
+                renderItem={({item}) => (
+                  <Image
+                    source={{
+                      uri: item,
+                    }}
+                    style={{
+                      borderRadius: 20,
+                      height: 250,
+                      width: '100%',
+                    }}
+                    resizeMode="cover"
+                  />
+                )}
+              /> */}
           <View>
-            {postImg ? (
-              <Image
-                source={{
-                  uri: postImg,
-                }}
-                style={{
-                  borderRadius: 20,
-                  height: 250,
-                  width: '100%',
-                }}
-                resizeMode="cover"
-              />
+            {postImg !== null ? (
+              <Swiper
+                showsButtons={true}
+                height={250}
+                loop={false}
+                showsButtons={false}
+                key={postImg.length}>
+                {postImg.map((img, key) => (
+                  <View style={styles.slide} key={key}>
+                    <Image
+                      source={{
+                        uri: img,
+                      }}
+                      style={{
+                        borderRadius: 20,
+                        height: 250,
+                        width: '100%',
+                      }}
+                      resizeMode="cover"
+                    />
+                  </View>
+                ))}
+              </Swiper>
             ) : null}
           </View>
           <View style={styles.actionBar}>
@@ -152,5 +188,10 @@ const styles = StyleSheet.create({
   reactCount: {
     fontWeight: '500',
     marginLeft: 5,
+  },
+  slide: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
