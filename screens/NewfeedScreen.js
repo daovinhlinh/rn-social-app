@@ -63,14 +63,14 @@ export const NewfeedScreen = ({navigation}) => {
         if (documentSnapshot.exists) {
           const {postImg} = documentSnapshot.data();
           if (postImg !== null) {
-            const storageRef = storage().refFromURL(postImg);
-            const imageRef = storage().ref(storageRef.fullPath);
-            imageRef
-              .delete()
-              .then(() => deteleFirestoreData(id))
-              .catch((e) => {
+            for (let i = 0; i < postImg.length; i++) {
+              const storageRef = storage().refFromURL(postImg[i]);
+              const imageRef = storage().ref(storageRef.fullPath);
+              imageRef.delete().catch((e) => {
                 console.log('Error: ' + e);
               });
+            }
+            deteleFirestoreData(id);
           } else {
             deteleFirestoreData(id);
           }

@@ -4,31 +4,17 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  TouchableWithoutFeedback,
-  Keyboard,
-  KeyboardAvoidingView,
+  TouchableOpacity,
+  Button,
 } from 'react-native';
 
-export const MessageScreen = () => {
-  const DismissKeyboard = ({children}) => (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        Keyboard.dismiss();
-      }}>
-      {children}
-    </TouchableWithoutFeedback>
-  );
+export const MessageScreen = ({navigation}) => {
   return (
-    <DismissKeyboard>
-      <View style={styles.container}>
-        <TextInput placeholder="Heelo" style={styles.input} />
-        <TextInput placeholder="Heelo" style={styles.input} />
-        <TextInput placeholder="Heelo" style={styles.input} />
-        <TextInput placeholder="Heelo" style={styles.input} />
-        <TextInput placeholder="Heelo" style={styles.input} />
-        <TextInput placeholder="Heelo" style={styles.input} />
-      </View>
-    </DismissKeyboard>
+    <View style={styles.container}>
+      <TextInput placeholder="Heelo" style={styles.input} />
+
+      <Button title="click me" onPress={() => navigation.push('Chat')} />
+    </View>
   );
 };
 

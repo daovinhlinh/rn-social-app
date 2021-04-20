@@ -9,6 +9,7 @@ import {
   NotificationScreen,
   ProfileScreen,
   MessageScreen,
+  ChatScreen,
   AddPostScreen,
   EditProfile,
   Comment,
@@ -47,7 +48,15 @@ const FeedStack = () => (
 const ProfileStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen component={ProfileScreen} name="Profile" />
+    <Stack.Screen component={Comment} name="Comment" />
     <Stack.Screen component={EditProfile} name="EditProfile" />
+  </Stack.Navigator>
+);
+
+const MessageStack = () => (
+  <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Screen component={MessageScreen} name="Messages" />
+    <Stack.Screen component={ChatScreen} name="Chat" />
   </Stack.Navigator>
 );
 
@@ -73,15 +82,17 @@ export const AppStack = () => {
           tabBarIcon: ({color}) => (
             <Ionicons name="newspaper" size={25} color={color} />
           ),
+          // tabBarVisible: route.state && route.state.index === 0,
         })}
       />
       <Tab.Screen
-        component={MessageScreen}
+        component={MessageStack}
         name="Message"
         options={({route}) => ({
           tabBarIcon: ({color}) => (
             <Ionicons name="chatbubble" size={25} color={color} />
           ),
+          // tabBarVisible: route.state && route.state.index === 0,
         })}
       />
       <Tab.Screen

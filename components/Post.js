@@ -1,12 +1,5 @@
 import React, {useEffect, useState, useContext} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  FlatList,
-} from 'react-native';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 
 import Swiper from 'react-native-swiper';
 
@@ -38,6 +31,7 @@ export const Post = ({item, onDelete, onLike, onPress, onComment}) => {
 
   useEffect(() => {
     getUser();
+    console.log(postImg);
   }, []);
 
   return (
@@ -82,24 +76,8 @@ export const Post = ({item, onDelete, onLike, onPress, onComment}) => {
             ) : null}
           </>
 
-          {/* <FlatList
-                data={postImg}
-                renderItem={({item}) => (
-                  <Image
-                    source={{
-                      uri: item,
-                    }}
-                    style={{
-                      borderRadius: 20,
-                      height: 250,
-                      width: '100%',
-                    }}
-                    resizeMode="cover"
-                  />
-                )}
-              /> */}
           <View>
-            {postImg !== null ? (
+            {postImg.length > 0 ? (
               <Swiper
                 showsButtons={true}
                 height={250}
@@ -148,8 +126,6 @@ export const Post = ({item, onDelete, onLike, onPress, onComment}) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
     backgroundColor: '#fff',
     marginBottom: 10,
     paddingHorizontal: 10,
@@ -180,6 +156,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 10,
     marginTop: 10,
+    borderTopWidth: 0.5,
+    borderTopColor: '#aaa',
+    paddingTop: 10,
   },
   reactBtn: {
     flexDirection: 'row',

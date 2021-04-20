@@ -212,9 +212,9 @@ export const EditProfile = ({navigation, route}) => {
           }}>
           <View
             style={{
-              justifyContent: 'space-around',
+              justifyContent: 'space-evenly',
               alignItems: 'center',
-              flex: 1,
+              height: '100%',
               paddingBottom: 25,
             }}>
             <View
@@ -297,15 +297,6 @@ export const EditProfile = ({navigation, route}) => {
                 color="#000"
                 icon="globe"
               />
-              <FormInput
-                placeholder="Enter your city"
-                // textChange={(text) => setUserData({...userData, city: text})}
-                // value={userData ? userData.city : ''}
-                secureTextEntry={false}
-                bgColor={colorStyles.white}
-                color="#000"
-                icon="globe"
-              />
             </View>
             <FormButton
               title="Update profile"
@@ -325,6 +316,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: colorStyles.white,
+    justifyContent: 'space-between',
   },
   header: {
     backgroundColor: '#FFFFFF',

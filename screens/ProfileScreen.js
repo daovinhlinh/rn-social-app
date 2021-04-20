@@ -136,14 +136,14 @@ export const ProfileScreen = ({navigation, route}) => {
         if (documentSnapshot.exists) {
           const {postImg} = documentSnapshot.data();
           if (postImg !== null) {
-            const storageRef = storage().refFromURL(postImg);
-            const imageRef = storage().ref(storageRef.fullPath);
-            imageRef
-              .delete()
-              .then(() => deteleFirestoreData(id))
-              .catch((e) => {
+            for (let i = 0; i < postImg.length; i++) {
+              const storageRef = storage().refFromURL(postImg[i]);
+              const imageRef = storage().ref(storageRef.fullPath);
+              imageRef.delete().catch((e) => {
                 console.log('Error: ' + e);
               });
+            }
+            deteleFirestoreData(id);
           } else {
             deteleFirestoreData(id);
           }
@@ -323,17 +323,24 @@ export const ProfileScreen = ({navigation, route}) => {
                 <Text>Following</Text>
               </View>
             </View>
+
             <Text style={styles.headerText}>Posts</Text>
             {posts !== null ? (
-              <>
+              <View>
                 {posts.map((item) => (
                   <Post
                     key={item.id}
                     item={item}
                     onDelete={() => handleDelete(item.id)}
+                    onComment={() =>
+                      navigation.push('Comment', {
+                        postId: item.id,
+                        userId: item.userId,
+                      })
+                    }
                   />
                 ))}
-              </>
+              </View>
             ) : (
               <View style={{width: '100%'}}>
                 <Text style={{textAlign: 'center'}}>

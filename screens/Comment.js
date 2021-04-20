@@ -14,7 +14,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import firestore, {firebase} from '@react-native-firebase/firestore';
 import {colorStyles} from '../styles';
-import {Header} from '../components';
+import {Header, CommentText} from '../components';
 import {useContext} from 'react';
 import {AuthContext} from '../navigation/AuthProvider';
 
@@ -67,6 +67,9 @@ export const Comment = ({navigation, route}) => {
   return (
     <View style={styles.container}>
       <Header header="Comment" navigation={navigation} />
+      <CommentText />
+      <CommentText />
+      <CommentText />
       <FlatList
         horizontal={false}
         style={{width: '100%'}}
@@ -82,6 +85,7 @@ export const Comment = ({navigation, route}) => {
           </View>
         )}
       />
+
       <View
         style={{
           backgroundColor: '#d7d7d7',
@@ -92,7 +96,7 @@ export const Comment = ({navigation, route}) => {
         }}>
         <TextInput
           style={{
-            width: width * 0.9,
+            width: width * 0.85,
             paddingVertical: 10,
             fontSize: 18,
           }}
@@ -116,5 +120,6 @@ const styles = StyleSheet.create({
     backgroundColor: colorStyles.white,
     paddingBottom: 15,
     width: '100%',
+    paddingHorizontal: 10,
   },
 });

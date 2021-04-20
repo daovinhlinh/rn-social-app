@@ -1,6 +1,7 @@
 export * from './AddPostScreen';
 export * from './EditProfile';
 export * from './MessageScreen';
+export * from './ChatScreen';
 export * from './NewfeedScreen';
 export * from './NotificationScreen';
 export * from './OnboardingScreen';
