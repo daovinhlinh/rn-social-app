@@ -5,22 +5,30 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  FlatList,
+  Alert,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import {AuthContext} from '../navigation/AuthProvider';
 
 import firestore from '@react-native-firebase/firestore';
 import Spinner from 'react-native-loading-spinner-overlay';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import storage from '@react-native-firebase/storage';
+
 import {Post, Header} from '../components';
 import {colorStyles} from '../styles/';
+
+const {width, height} = Dimensions.get('screen');
 
 export const ProfileScreen = ({navigation, route}) => {
   const {user, logOut} = useContext(AuthContext);
   const [posts, setPosts] = useState();
   const [loading, setLoading] = useState(true);
+  const [userData, setUserdata] = useState(null);
+  const [follow, setFollow] = useState(false);
   const [deleted, setDeleted] = useState(false);
-  const [userImg, setUserImg] = useState('');
+  const [following, setFollowing] = useState();
 
   const fetchPost = async () => {
     try {
@@ -56,10 +64,48 @@ export const ProfileScreen = ({navigation, route}) => {
           });
         });
       setPosts(list);
-      setLoading(false);
+      if (loading) setLoading(false);
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const fetchFollowing = () => {
+    let list = [];
+
+    firestore()
+      .collection('following')
+      .doc(user.uid)
+      .collection('userFollowing')
+      .onSnapshot((snapshot) => {
+        snapshot.forEach((doc) => {
+          const id = doc.id;
+          list.push(id);
+        });
+
+        setFollowing(list.length);
+        if (list.indexOf(route.params?.userId) > -1) {
+          setFollow(true);
+        } else {
+          setFollow(false);
+        }
+      });
+  };
+
+  const countFollowing = () => {
+    let list = [];
+
+    firestore()
+      .collection('following')
+      .doc(route.params ? route.params.userId : user.uid)
+      .collection('userFollowing')
+      .onSnapshot((snapshot) => {
+        snapshot.forEach((doc) => {
+          const id = doc.id;
+          list.push(id);
+        });
+        setFollowing(list.length);
+      });
   };
 
   const getUser = async () => {
@@ -69,21 +115,102 @@ export const ProfileScreen = ({navigation, route}) => {
       .get()
       .then((snapshot) => {
         if (snapshot.exists) {
-          console.log(snapshot.data());
+          setUserdata(snapshot.data());
         }
       });
+  };
+
+  const handleDelete = (id) => {
+    Alert.alert('Delete post', 'Are you sure?', [
+      {text: 'Cancel', style: 'cancel'},
+      {
+        text: 'Confirm',
+        onPress: () => deletePost(id),
+      },
+    ]);
+  };
+
+  const deletePost = (id) => {
+    firestore()
+      .collection('posts')
+      .doc(id)
+      .get()
+      .then((documentSnapshot) => {
+        if (documentSnapshot.exists) {
+          const {postImg} = documentSnapshot.data();
+          if (postImg !== null) {
+            for (let i = 0; i < postImg.length; i++) {
+              const storageRef = storage().refFromURL(postImg[i]);
+              const imageRef = storage().ref(storageRef.fullPath);
+              imageRef.delete().catch((e) => {
+                console.log('Error: ' + e);
+              });
+            }
+            deteleFirestoreData(id);
+          } else {
+            deteleFirestoreData(id);
+          }
+        }
+      });
+  };
+
+  const deteleFirestoreData = (id) => {
+    firestore()
+      .collection('posts')
+      .doc(id)
+      .delete()
+      .then(() => {
+        Alert.alert('Post deleted', 'Your post has been deleted!');
+        setDeleted(true);
+      })
+      .catch((e) => console.log(e));
+  };
+
+  const onFollow = async () => {
+    await firestore()
+      .collection('following')
+      .doc(user.uid)
+      .collection('userFollowing')
+      .doc(route.params.userId)
+      .set({});
+    fetchFollowing();
+  };
+
+  const onUnfollow = async () => {
+    await firestore()
+      .collection('following')
+      .doc(user.uid)
+      .collection('userFollowing')
+      .doc(route.params.userId)
+      .delete();
+    fetchFollowing();
   };
 
   useEffect(() => {
     getUser();
     fetchPost();
+    countFollowing();
   }, []);
 
+  useEffect(() => {
+    navigation.addListener('focus', () => {
+      getUser();
+      fetchPost();
+      fetchFollowing();
+      countFollowing();
+    });
+  }, [navigation]);
+
+  useEffect(() => {
+    fetchPost();
+    setDeleted(false);
+  }, [deleted]);
+
   return (
-    <ScrollView style={{flex: 1}}>
+    <>
       {loading ? (
         <Spinner
-          visible={loading}
+          visible={true}
           animation="fade"
           textContent={`Loading`}
           color="white"
@@ -93,96 +220,142 @@ export const ProfileScreen = ({navigation, route}) => {
         <View style={styles.container}>
           <Header
             header="Profile"
-            btnText="Log Out"
+            btnText={'Log Out'}
             bgColor={colorStyles.red}
             navigation={navigation}
             onPress={logOut}
           />
-
-          <Image
-            source={require('../img/avatar.png')}
+          <ScrollView
             style={{
-              width: 150,
-              height: 150,
-              borderRadius: 90,
-              marginVertical: 20,
+              backgroundColor: 'white',
+              width: width,
             }}
-          />
-
-          <View>
-            <Text style={{fontWeight: 'bold', fontSize: 20}}>
-              Dao Vinh Linh
-            </Text>
-            <Text style={{textAlign: 'center'}}>Dao Vinh Linh</Text>
-          </View>
-          {route.params?.userId == user.uid ? null : (
-            <TouchableOpacity
-              onPress={() =>
-                navigation.push('EditProfile', {
-                  userImg: 'https://www.w3schools.com/howto/img_avatar.png',
-                })
-              }
-              style={{
-                backgroundColor: colorStyles.dodgerBlue,
-                padding: 10,
-                borderRadius: 10,
-                marginVertical: 10,
-              }}>
-              <Text style={{color: colorStyles.white, fontWeight: 'bold'}}>
-                Edit Profile
-              </Text>
-            </TouchableOpacity>
-          )}
-          <View style={{flexDirection: 'row', marginVertical: 10}}>
-            <View style={{alignItems: 'center', flex: 1}}>
-              <Text style={{fontWeight: 'bold', fontSize: 22}}>5</Text>
-              <Text>Posts</Text>
-            </View>
-            <View style={{alignItems: 'center', flex: 1}}>
-              <Text style={{fontWeight: 'bold', fontSize: 22}}>10000</Text>
-              <Text>Followers</Text>
-            </View>
-            <View style={{alignItems: 'center', flex: 1}}>
-              <Text style={{fontWeight: 'bold', fontSize: 22}}>100</Text>
-              <Text>Friends</Text>
-            </View>
-          </View>
-          <Text
-            style={{
-              textAlign: 'left',
-              width: '100%',
-              paddingHorizontal: 10,
-              paddingVertical: 10,
-              fontSize: 20,
-              fontWeight: 'bold',
-              marginTop: 10,
-              borderColor: colorStyles.black,
-              borderTopWidth: 0.5,
-            }}>
-            Posts
-          </Text>
-          {loading ? (
-            <Spinner
-              visible={loading}
-              animation="fade"
-              textContent={`Loading`}
-              color="white"
-              textStyle={{fontWeight: 'normal', color: 'white'}}
+            contentContainerStyle={{alignItems: 'center'}}
+            showsVerticalScrollIndicator={false}>
+            <Image
+              source={{
+                uri: userData
+                  ? userData.userImg ||
+                    'https://www.w3schools.com/howto/img_avatar.png'
+                  : 'https://www.w3schools.com/howto/img_avatar.png',
+              }}
+              style={styles.avatar}
             />
-          ) : (
-            <>
-              {posts.map((item) => (
-                <Post
-                  key={item.id}
-                  item={item}
-                  onDelete={() => console.log('hello')}
-                />
-              ))}
-            </>
-          )}
+
+            <View style={{alignItems: 'center'}}>
+              <Text style={{fontWeight: 'bold', fontSize: 20}}>
+                {userData.fname + ' ' + userData.lname}
+              </Text>
+              <View style={{flexDirection: 'row'}}>
+                {userData.city ? (
+                  <>
+                    <Ionicons
+                      name="globe"
+                      size={18}
+                      color={colorStyles.black}
+                    />
+                    <Text style={{textAlign: 'center', marginLeft: 5}}>
+                      {userData.city}
+                    </Text>
+                  </>
+                ) : null}
+              </View>
+              <Text style={{textAlign: 'center'}}>{userData.introduction}</Text>
+            </View>
+            {route.params ? (
+              route.params.userId !== user.uid ? (
+                <>
+                  {follow ? (
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={onUnfollow}>
+                      <Text
+                        style={{color: colorStyles.white, fontWeight: 'bold'}}>
+                        Following
+                      </Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity style={styles.button} onPress={onFollow}>
+                      <Text
+                        style={{color: colorStyles.white, fontWeight: 'bold'}}>
+                        Follow
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </>
+              ) : (
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.push('EditProfile', {
+                      userImg: 'https://www.w3schools.com/howto/img_avatar.png',
+                    })
+                  }
+                  style={styles.button}>
+                  <Text style={{color: colorStyles.white, fontWeight: 'bold'}}>
+                    Edit Profile
+                  </Text>
+                </TouchableOpacity>
+              )
+            ) : (
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.push('EditProfile', {
+                    userImg: 'https://www.w3schools.com/howto/img_avatar.png',
+                  })
+                }
+                style={styles.button}>
+                <Text style={{color: colorStyles.white, fontWeight: 'bold'}}>
+                  Edit Profile
+                </Text>
+              </TouchableOpacity>
+            )}
+            <View style={{flexDirection: 'row', marginVertical: 10}}>
+              <View style={{alignItems: 'center', flex: 1}}>
+                <Text style={{fontWeight: 'bold', fontSize: 22}}>
+                  {posts.length}
+                </Text>
+                <Text>Posts</Text>
+              </View>
+              <View style={{alignItems: 'center', flex: 1}}>
+                <Text style={{fontWeight: 'bold', fontSize: 22}}>10000</Text>
+                <Text>Followers</Text>
+              </View>
+              <View style={{alignItems: 'center', flex: 1}}>
+                <Text style={{fontWeight: 'bold', fontSize: 22}}>
+                  {following}
+                </Text>
+                <Text>Following</Text>
+              </View>
+            </View>
+
+            <Text style={styles.headerText}>Posts</Text>
+            {posts !== null ? (
+              <View>
+                {posts.map((item) => (
+                  <Post
+                    key={item.id}
+                    item={item}
+                    onDelete={() => handleDelete(item.id)}
+                    onComment={() =>
+                      navigation.push('Comment', {
+                        postId: item.id,
+                        userId: item.userId,
+                      })
+                    }
+                  />
+                ))}
+              </View>
+            ) : (
+              <View style={{width: '100%'}}>
+                <Text style={{textAlign: 'center'}}>
+                  You don't have any post
+                </Text>
+              </View>
+            )}
+          </ScrollView>
         </View>
       )}
-    </ScrollView>
+    </>
   );
 };
 
@@ -191,5 +364,28 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: colorStyles.white,
+  },
+  avatar: {
+    width: 150,
+    height: 150,
+    borderRadius: 90,
+    marginVertical: 20,
+  },
+  button: {
+    backgroundColor: colorStyles.dodgerBlue,
+    padding: 10,
+    borderRadius: 10,
+    marginVertical: 10,
+  },
+  headerText: {
+    textAlign: 'left',
+    width: '100%',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 10,
+    borderColor: colorStyles.black,
+    borderTopWidth: 0.5,
   },
 });

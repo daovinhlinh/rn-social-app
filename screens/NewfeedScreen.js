@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {StatusBar, FlatList, Alert, TouchableOpacity, Text} from 'react-native';
+import {StatusBar, FlatList, Alert, View, Text, Dimensions} from 'react-native';
 
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
@@ -10,6 +10,7 @@ import {Post} from '../components';
 export const NewfeedScreen = ({navigation}) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refresh, setRefresh] = useState(false);
   const [deleted, setDeleted] = useState(false);
 
   const fetchPost = async () => {
@@ -22,30 +23,22 @@ export const NewfeedScreen = ({navigation}) => {
         .get()
         .then((snapshot) => {
           snapshot.forEach((doc) => {
-            const {
-              post,
-              postImg,
-              postTime,
-              userId,
-              likes,
-              comments,
-            } = doc.data();
             list.push({
               id: doc.id,
-              userId,
-              userName: 'Default',
+              userId: doc.data().userId,
               userImg: 'https://www.w3schools.com/howto/img_avatar.png',
-              post,
-              likes: likes || 0,
+              post: doc.data().post,
+              likes: doc.data().likes || 0,
               liked: false,
-              comments,
-              postImg,
-              postTime,
+              comments: doc.data().comments,
+              postImg: doc.data().postImg,
+              postTime: doc.data().postTime,
             });
           });
         });
       setPosts(list);
       setLoading(false);
+      setRefresh(false);
     } catch (error) {
       console.log(error);
     }
@@ -70,15 +63,14 @@ export const NewfeedScreen = ({navigation}) => {
         if (documentSnapshot.exists) {
           const {postImg} = documentSnapshot.data();
           if (postImg !== null) {
-            const storageRef = storage().refFromURL(postImg);
-            // console.log(storageRef.fullPath);
-            const imageRef = storage().ref(storageRef.fullPath);
-            imageRef
-              .delete()
-              .then(() => deteleFirestoreData(id))
-              .catch((e) => {
+            for (let i = 0; i < postImg.length; i++) {
+              const storageRef = storage().refFromURL(postImg[i]);
+              const imageRef = storage().ref(storageRef.fullPath);
+              imageRef.delete().catch((e) => {
                 console.log('Error: ' + e);
               });
+            }
+            deteleFirestoreData(id);
           } else {
             deteleFirestoreData(id);
           }
@@ -98,8 +90,22 @@ export const NewfeedScreen = ({navigation}) => {
       .catch((e) => console.log(e));
   };
 
+  const addLike = async (id) => {
+    let like = [];
+
+    await firestore()
+      .collection('posts')
+      .doc(id)
+      .update({
+        likes: likes + 1,
+      })
+      .then(() => {
+        console.log('liked');
+      });
+  };
+
   useEffect(() => {
-    fetchPost();
+    navigation.addListener('focus', () => fetchPost());
   }, []);
 
   useEffect(() => {
@@ -107,8 +113,30 @@ export const NewfeedScreen = ({navigation}) => {
     setDeleted(false);
   }, [deleted]);
 
+  const renderItem = ({item}) => (
+    <Post
+      item={item}
+      onDelete={handleDelete}
+      onPress={() =>
+        navigation.navigate('ProfileScreen', {userId: item.userId})
+      }
+      onComment={() =>
+        navigation.push('Comment', {postId: item.id, userId: item.userId})
+      }
+    />
+  );
+
+  const onRefresh = () => {
+    fetchPost();
+    setRefresh(false);
+  };
+
   return (
-    <>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: '#E0E1E5',
+      }}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
       {loading ? (
         <Spinner
@@ -121,19 +149,23 @@ export const NewfeedScreen = ({navigation}) => {
       ) : (
         <FlatList
           data={posts}
-          renderItem={({item}) => (
-            <Post
-              item={item}
-              onDelete={handleDelete}
-              onPress={() =>
-                navigation.navigate('ProfileScreen', {userId: item.userId})
-              }
-            />
-          )}
+          renderItem={renderItem}
           keyExtractor={(post) => post.id}
           showsVerticalScrollIndicator={false}
+          removeClippedSubviews={false}
+          updateCellsBatchingPeriod={100}
+          initialNumToRender={5}
+          maxToRenderPerBatch={5}
+          onRefresh={onRefresh}
+          refreshing={refresh}
+          progressViewOffset={50}
+          ListEmptyComponent={
+            <View>
+              <Text style={{textAlign: 'center'}}>No data</Text>
+            </View>
+          }
         />
       )}
-    </>
+    </View>
   );
 };

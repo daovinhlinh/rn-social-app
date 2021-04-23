@@ -9,7 +9,7 @@ import {
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const {width, height} = Dimensions.get('window');
+const {width, height} = Dimensions.get('screen');
 
 export const Header = ({header, btnText, bgColor, navigation, onPress}) => {
   return (
@@ -34,7 +34,7 @@ export const Header = ({header, btnText, bgColor, navigation, onPress}) => {
 const styles = StyleSheet.create({
   container: {
     height: 60,
-    width: '100%',
+    width: width,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

@@ -6,9 +6,6 @@ import {AuthContext} from '../navigation/AuthProvider';
 
 export const Home = () => {
   const {user, logOut} = useContext(AuthContext);
-  useEffect(() => {
-    console.log(user);
-  }, []);
   return (
     <View style={styles.container}>
       <Text>Hello {user.email}</Text>

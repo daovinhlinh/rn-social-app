@@ -9,6 +9,8 @@ import {
   Pressable,
   Platform,
   Alert,
+  TouchableOpacity,
+  FlatList,
 } from 'react-native';
 
 import storage from '@react-native-firebase/storage';
@@ -20,33 +22,53 @@ import Spinner from 'react-native-loading-spinner-overlay';
 
 import {Header} from '../components';
 import {AuthContext} from '../navigation/AuthProvider.js';
+import {colorStyles} from '../styles/ColorStyles';
 
 const {width, height} = Dimensions.get('window');
 
-const ImageContainer = ({image}) => {
-  return <Image source={{uri: image}} style={{width: 100, height: 100}} />;
+const ImageContainer = ({image, onDelete}) => {
+  return (
+    <View style={{width: width * 0.25}}>
+      <TouchableOpacity
+        style={{zIndex: 1, top: 30, alignSelf: 'flex-end'}}
+        onPress={onDelete}>
+        <Ionicons name="close-circle" color="#fff" size={25} />
+      </TouchableOpacity>
+      <Image source={{uri: image}} style={{width: '100%', height: 100}} />
+    </View>
+  );
 };
 
 export const AddPostScreen = ({navigation}) => {
-  const [image, setImage] = useState('');
+  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [transferred, setTransferred] = useState(0);
+  const [userData, setUserdata] = useState(null);
   const [post, setPost] = useState(null);
   const {user} = useContext(AuthContext);
 
-  useEffect(() => {
-    console.log(user);
-  }, []);
+  const getUser = async () => {
+    await firestore()
+      .collection('users')
+      .doc(user.uid)
+      .get()
+      .then((snapshot) => {
+        if (snapshot.exists) {
+          setUserdata(snapshot.data());
+        }
+      });
+  };
 
   const takePhotoFromCamera = () => {
     ImagePicker.openCamera({
       width: width,
       height: height,
+      multiple: true,
     }).then((image) => {
       const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
-      console.log(imageUri);
-      console.log(image);
-      setImage(imageUri);
+      let newData = [...images];
+      newData.push(imageUri);
+      setImages(newData);
     });
   };
 
@@ -57,14 +79,14 @@ export const AddPostScreen = ({navigation}) => {
       multiple: true,
     }).then((image) => {
       const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
-      console.log(image);
+      console.log(imageUri);
+      // setImage(imageUri);
     });
   };
 
   const submitPost = async () => {
-    let imgUrl = await postImage();
-
     setLoading(true);
+    let imgUrl = await postImage();
     firestore()
       .collection('posts')
       .add({
@@ -72,11 +94,10 @@ export const AddPostScreen = ({navigation}) => {
         post: post,
         postImg: imgUrl,
         postTime: firestore.Timestamp.fromDate(new Date()),
-        likes: null,
-        comments: null,
+        likes: 0,
+        comments: 0,
       })
       .then(() => {
-        console.log('Post added!');
         Alert.alert('Uploaded', 'Your post has been uploaded!');
         setLoading(false);
         setPost(null);
@@ -88,48 +109,54 @@ export const AddPostScreen = ({navigation}) => {
   };
 
   const postImage = async () => {
-    if (image === null) return null;
-    const uploadUri = image;
-    let fileName = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+    if (images === null) return null;
+    let urlData = [];
+    for (let i = 0; i < images.length; i++) {
+      const uploadUri = images[i];
+      let fileName = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
 
-    const extension = fileName.split('.').pop();
-    const name = fileName.split('.').slice(0, -1).join('.');
-    fileName = name + Date.now() + '.' + extension;
+      const extension = fileName.split('.').pop();
+      const name = fileName.split('.').slice(0, -1).join('.');
+      fileName = name + Date.now() + '.' + extension;
 
-    const storageRef = storage().ref(`photo/${fileName}`);
-    const task = storageRef.putFile(uploadUri);
+      const storageRef = storage().ref(`photo/${fileName}`);
+      const task = storageRef.putFile(uploadUri);
 
-    // Set transferred state
-    task.on('state_changed', (taskSnapshot) => {
-      setTransferred(
-        Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
-          100,
-      );
-    });
+      // Set transferred state
+      task.on('state_changed', (taskSnapshot) => {
+        setTransferred(
+          Math.round(taskSnapshot.bytesTransferred / taskSnapshot.totalBytes) *
+            100,
+        );
+      });
 
-    setTransferred(0);
+      setTransferred(0);
 
-    try {
-      await task;
+      try {
+        await task;
 
-      const imgUrl = await storageRef.getDownloadURL();
-      setImage(null);
-
-      return imgUrl;
-    } catch (error) {
-      console.log(error);
-      return null;
+        const imgUrl = await storageRef.getDownloadURL();
+        urlData.push(imgUrl);
+      } catch (error) {
+        console.log(error);
+        return null;
+      }
     }
+    setImages(null);
+    return urlData;
   };
 
+  useEffect(() => {
+    getUser();
+  }, []);
   return (
     <View style={styles.container}>
       <Header
         header="Add post"
         btnText="post"
-        bgColor={image ? '#3360ff' : '#acacac' || post ? '#3360ff' : '#acacac'}
+        bgColor={images ? '#3360ff' : '#acacac' || post ? '#3360ff' : '#acacac'}
         navigation={navigation}
-        onPress={image ? submitPost : null || post ? submitPost : null}
+        onPress={images ? submitPost : null || post ? submitPost : null}
       />
       <Spinner
         visible={loading}
@@ -146,7 +173,9 @@ export const AddPostScreen = ({navigation}) => {
               style={[styles.avatar]}
             />
             <View>
-              <Text style={styles.name}>Linh</Text>
+              <Text style={styles.name}>
+                {userData ? `${userData.fname} ${userData.lname}` : 'hello'}
+              </Text>
               <Text style={styles.time}>1 hour</Text>
             </View>
           </View>
@@ -165,7 +194,19 @@ export const AddPostScreen = ({navigation}) => {
         />
       </View>
       <View>
-        {image ? <ImageContainer image={image} /> : null}
+        <View style={{flexDirection: 'row', width: width}}>
+          <FlatList
+            data={images}
+            renderItem={({item}) => (
+              <ImageContainer
+                image={item}
+                onDelete={() => setImages(images.filter((img) => img != item))}
+              />
+            )}
+            legacyImplementation={true}
+            horizontal={true}
+          />
+        </View>
         <View style={styles.attachBar}>
           <Pressable
             onPress={takePhotoFromLibrary}

@@ -1,10 +1,19 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Button,
+} from 'react-native';
 
-export const MessageScreen = () => {
+export const MessageScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
-      <Text>Message Screen</Text>
+      <TextInput placeholder="Heelo" style={styles.input} />
+
+      <Button title="click me" onPress={() => navigation.push('Chat')} />
     </View>
   );
 };
@@ -12,7 +21,12 @@ export const MessageScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingTop: 20,
+  },
+  input: {
+    paddingVertical: 20,
+    backgroundColor: 'white',
+    marginBottom: 50,
   },
 });

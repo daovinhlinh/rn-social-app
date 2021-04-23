@@ -1,9 +1,7 @@
 import React from 'react';
-import {View, Text, TextInput} from 'react-native';
 
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {
@@ -11,14 +9,16 @@ import {
   NotificationScreen,
   ProfileScreen,
   MessageScreen,
+  ChatScreen,
   AddPostScreen,
   EditProfile,
+  Comment,
 } from '../screens';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const FeedStack = ({navigation}) => (
+const FeedStack = () => (
   <Stack.Navigator>
     <Stack.Screen
       component={NewfeedScreen}
@@ -37,21 +37,32 @@ const FeedStack = ({navigation}) => (
       name="ProfileScreen"
       options={{headerShown: false}}
     />
+    <Stack.Screen
+      component={Comment}
+      name="Comment"
+      options={{headerShown: false}}
+    />
   </Stack.Navigator>
 );
 
-const ProfileStack = ({navigation}) => (
+const ProfileStack = () => (
   <Stack.Navigator screenOptions={{headerShown: false}}>
     <Stack.Screen component={ProfileScreen} name="Profile" />
+    <Stack.Screen component={Comment} name="Comment" />
     <Stack.Screen component={EditProfile} name="EditProfile" />
+  </Stack.Navigator>
+);
+
+const MessageStack = () => (
+  <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Screen component={MessageScreen} name="Messages" />
+    <Stack.Screen component={ChatScreen} name="Chat" />
   </Stack.Navigator>
 );
 
 export const AppStack = () => {
   const getTabBarVisibility = (route) => {
-    // const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
-
-    if (route.name === 'AddPost') {
+    if (route.name === 'AddPost' || route.name === 'Comment') {
       return false;
     }
     return true;
@@ -67,19 +78,21 @@ export const AppStack = () => {
       <Tab.Screen
         component={FeedStack}
         name="Home"
-        options={{
+        options={({route}) => ({
           tabBarIcon: ({color}) => (
             <Ionicons name="newspaper" size={25} color={color} />
           ),
-        }}
+          // tabBarVisible: route.state && route.state.index === 0,
+        })}
       />
       <Tab.Screen
-        component={MessageScreen}
+        component={MessageStack}
         name="Message"
         options={({route}) => ({
           tabBarIcon: ({color}) => (
             <Ionicons name="chatbubble" size={25} color={color} />
           ),
+          // tabBarVisible: route.state && route.state.index === 0,
         })}
       />
       <Tab.Screen

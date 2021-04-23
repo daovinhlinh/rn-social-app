@@ -17,7 +17,7 @@ export const Login = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const {register, login, googleLogin} = useContext(AuthContext);
+  const {login, googleLogin} = useContext(AuthContext);
 
   return (
     <View style={styles.container}>
@@ -27,17 +27,17 @@ export const Login = ({navigation}) => {
           value={email}
           placeholder="Email"
           keyboardType="email-address"
-          autoCorrect={false}
           textChange={(text) => setEmail(text)}
           secure={false}
+          icon="mail"
         />
         <FormInput
           value={password}
           placeholder="Password"
           keyboardType="default"
-          autoCorrect={false}
           textChange={(text) => setPassword(text)}
           secure={true}
+          icon="key"
         />
         <FormButton
           title="Log in"
@@ -55,16 +55,10 @@ export const Login = ({navigation}) => {
           onPress={() => googleLogin()}
         />
       </View>
-      {/* <View>
-        <FormButton
-          title="create new account"
-          onPress={() => navigation.push('Register')}
-        />
-      </View> */}
+
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={styles.text}>Don't have an acount? Create here</Text>
       </TouchableOpacity>
-      {/* <FormButton title="Sign in with Facebook" backgroundColor="#5579ab" /> */}
     </View>
   );
 };
