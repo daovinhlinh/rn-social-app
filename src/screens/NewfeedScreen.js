@@ -1,11 +1,20 @@
 import React, {useEffect, useState} from 'react';
-import {StatusBar, FlatList, Alert, View, Text, Dimensions} from 'react-native';
+import {
+  StatusBar,
+  FlatList,
+  Alert,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import Spinner from 'react-native-loading-spinner-overlay';
 
-import {Post} from '../components';
+import {Post, Header} from '../components';
+import {colorStyles} from '../styles';
 
 export const NewfeedScreen = ({navigation}) => {
   const [posts, setPosts] = useState([]);
@@ -29,8 +38,6 @@ export const NewfeedScreen = ({navigation}) => {
               userImg: 'https://www.w3schools.com/howto/img_avatar.png',
               post: doc.data().post,
               likes: doc.data().likes || 0,
-              liked: false,
-              comments: doc.data().comments,
               postImg: doc.data().postImg,
               postTime: doc.data().postTime,
             });
@@ -90,22 +97,10 @@ export const NewfeedScreen = ({navigation}) => {
       .catch((e) => console.log(e));
   };
 
-  const addLike = async (id) => {
-    let like = [];
-
-    await firestore()
-      .collection('posts')
-      .doc(id)
-      .update({
-        likes: likes + 1,
-      })
-      .then(() => {
-        console.log('liked');
-      });
-  };
-
   useEffect(() => {
-    navigation.addListener('focus', () => fetchPost());
+    navigation.addListener('focus', () => {
+      fetchPost();
+    });
   }, []);
 
   useEffect(() => {
@@ -123,6 +118,7 @@ export const NewfeedScreen = ({navigation}) => {
       onComment={() =>
         navigation.push('Comment', {postId: item.id, userId: item.userId})
       }
+      navigation={navigation}
     />
   );
 
@@ -135,9 +131,11 @@ export const NewfeedScreen = ({navigation}) => {
     <View
       style={{
         flex: 1,
-        backgroundColor: '#E0E1E5',
+        backgroundColor: colorStyles.mischka,
       }}>
-      <StatusBar barStyle="dark-content" backgroundColor="white" />
+      <StatusBar barStyle="dark-content" backgroundColor={colorStyles.white} />
+      <Header header="Home" />
+
       {loading ? (
         <Spinner
           visible={loading}
@@ -152,7 +150,7 @@ export const NewfeedScreen = ({navigation}) => {
           renderItem={renderItem}
           keyExtractor={(post) => post.id}
           showsVerticalScrollIndicator={false}
-          removeClippedSubviews={false}
+          removeClippedSubviews={true}
           updateCellsBatchingPeriod={100}
           initialNumToRender={5}
           maxToRenderPerBatch={5}

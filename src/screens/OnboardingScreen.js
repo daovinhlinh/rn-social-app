@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Image} from 'react-native';
+import {Image} from 'react-native';
 
 import Onboarding from 'react-native-onboarding-swiper';
 
@@ -8,13 +8,13 @@ export const OnboardingScreen = ({navigation}) => {
     <Onboarding
       pages={[
         {
-          backgroundColor: '#fff',
+          backgroundColor: colorStyles.white,
           title: 'Onboarding',
           subtitle: 'React native onboarding',
           image: <Image source={require('../img/globe.png')} />,
         },
         {
-          backgroundColor: '#3e3e3e',
+          backgroundColor: colorStyles.mineShaft,
           title: 'Onboarding',
           subtitle: 'React native onboarding',
           image: <Image source={require('../img/globe.png')} />,
@@ -25,11 +25,3 @@ export const OnboardingScreen = ({navigation}) => {
     />
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

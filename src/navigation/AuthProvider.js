@@ -13,6 +13,7 @@ export const AuthProvider = ({children}) => {
       value={{
         user,
         setUser,
+
         login: async (email, password) => {
           try {
             await auth().signInWithEmailAndPassword(email, password);

@@ -69,24 +69,26 @@ export const EditProfile = ({navigation, route}) => {
   const renderInner = () => (
     <View
       style={{
-        backgroundColor: '#ffffff',
+        backgroundColor: colorStyles.white,
         width: '100%',
         height: 300,
         borderLeftWidth: 1,
         borderRightWidth: 1,
-        borderColor: '#acacac',
+        borderColor: colorStyles.silver,
         paddingHorizontal: 20,
         paddingVertical: 10,
       }}>
       <View style={{alignItems: 'center', marginBottom: 10}}>
         <Text style={{fontSize: 25}}>Upload photo</Text>
-        <Text style={{color: '#a6a6a6'}}>Choose your profile picture</Text>
+        <Text style={{color: colorStyles.silver}}>
+          Choose your profile picture
+        </Text>
       </View>
       <TouchableOpacity
         onPress={takePhotoFromCamera}
         style={{
           padding: 13,
-          backgroundColor: '#2e64e5',
+          backgroundColor: colorStyles.dodgerBlue,
           alignItems: 'center',
           marginVertical: 7,
           borderRadius: 10,
@@ -100,7 +102,7 @@ export const EditProfile = ({navigation, route}) => {
         style={{
           padding: 13,
           borderRadius: 10,
-          backgroundColor: '#2e64e5',
+          backgroundColor: colorStyles.dodgerBlue,
           alignItems: 'center',
           marginVertical: 7,
         }}>
@@ -112,7 +114,7 @@ export const EditProfile = ({navigation, route}) => {
         style={{
           padding: 13,
           borderRadius: 10,
-          backgroundColor: '#D5212E',
+          backgroundColor: colorStyles.red,
           alignItems: 'center',
           marginVertical: 7,
         }}
@@ -256,7 +258,7 @@ export const EditProfile = ({navigation, route}) => {
                 value={userData ? userData.fname : ''}
                 secureTextEntry={false}
                 bgColor={colorStyles.white}
-                color="#000"
+                color={colorStyles.black}
                 icon="person"
               />
               <FormInput
@@ -265,7 +267,7 @@ export const EditProfile = ({navigation, route}) => {
                 value={userData ? userData.lname : ''}
                 secureTextEntry={false}
                 bgColor={colorStyles.white}
-                color="#000"
+                color={colorStyles.black}
                 icon="person"
               />
               <FormInput
@@ -276,7 +278,7 @@ export const EditProfile = ({navigation, route}) => {
                 value={userData ? userData.introduction : ''}
                 secureTextEntry={false}
                 bgColor={colorStyles.white}
-                color="#000"
+                color={colorStyles.black}
                 icon="document-text"
               />
               <FormInput
@@ -285,7 +287,7 @@ export const EditProfile = ({navigation, route}) => {
                 value={userData ? userData.phone : ''}
                 secureTextEntry={false}
                 bgColor={colorStyles.white}
-                color="#000"
+                color={colorStyles.black}
                 icon="call"
               />
               <FormInput
@@ -294,14 +296,14 @@ export const EditProfile = ({navigation, route}) => {
                 value={userData ? userData.city : ''}
                 secureTextEntry={false}
                 bgColor={colorStyles.white}
-                color="#000"
+                color={colorStyles.black}
                 icon="globe"
               />
             </View>
             <FormButton
               title="Update profile"
-              color="#fff"
-              backgroundColor="#16b4f2"
+              color={colorStyles.white}
+              backgroundColor={colorStyles.dodgerBlue}
               onPress={handleUpdate}
             />
           </View>
@@ -319,8 +321,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   header: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#acacac',
+    backgroundColor: colorStyles.white,
+    borderColor: colorStyles.silver,
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
@@ -335,6 +337,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#00000040',
+    backgroundColor: colorStyles.black,
   },
 });

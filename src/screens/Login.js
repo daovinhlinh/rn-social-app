@@ -1,16 +1,10 @@
 import React, {useState} from 'react';
 import {useContext} from 'react';
 
-import {
-  StyleSheet,
-  View,
-  Dimensions,
-  Image,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
+import {StyleSheet, View, Image, Text, TouchableOpacity} from 'react-native';
 
 import {FormButton, FormInput} from '../components';
+import {colorStyles} from '../styles/';
 import {AuthContext} from '../navigation/AuthProvider';
 
 export const Login = ({navigation}) => {
@@ -51,7 +45,7 @@ export const Login = ({navigation}) => {
         />
         <FormButton
           title="Sign in with Google"
-          backgroundColor="#f29191"
+          backgroundColor={colorStyles.mauvelous}
           onPress={() => googleLogin()}
         />
       </View>
@@ -68,9 +62,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#3B5998',
+    backgroundColor: colorStyles.chambray,
   },
   text: {
-    color: '#fff',
+    color: colorStyles.white,
   },
 });

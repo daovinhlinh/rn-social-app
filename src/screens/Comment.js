@@ -9,11 +9,12 @@ import {
   Dimensions,
   TouchableOpacity,
   Keyboard,
+  Text,
 } from 'react-native';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import firestore, {firebase} from '@react-native-firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 import {colorStyles} from '../styles';
 import {Header, CommentText} from '../components';
 import {useContext} from 'react';
@@ -23,51 +24,36 @@ const {width, height} = Dimensions.get('window');
 
 export const Comment = ({navigation, route}) => {
   const [comments, setComments] = useState([]);
-  const [postId, setPostId] = useState('');
+  const [limit, setLimit] = useState(7);
   const [text, setText] = useState('');
   const {user} = useContext(AuthContext);
   const flatlistRef = useRef();
 
   const fetchComment = () => {
-    if (route.params.postId !== postId) {
-      // firestore()
-      //   .collection('posts')
-      //   .doc(route.params.postId)
-      //   .collection('comments')
-      //   .orderBy('createdAt', 'asc')
-      //   .get()
-      //   .then((snapshot) => {
-      //     snapshot.forEach((doc) => {
-      //       list.push({
-      //         id: doc.id,
-      //         text: doc.data().text,
-      //         creator: doc.data().creator,
-      //       });
-      //     });
-      //     setComments(list);
-      //   });
-      firestore()
-        .collection('posts')
-        .doc(route.params.postId)
-        .collection('comments')
-        .orderBy('createdAt', 'asc')
-        .onSnapshot((snapshot) => {
-          const comment = snapshot.docs.map((doc) => {
-            const listComment = doc.data();
+    firestore()
+      .collection('posts')
+      .doc(route.params.postId)
+      .collection('comments')
+      .orderBy('createdAt', 'asc')
+      .limitToLast(7)
+      .onSnapshot((snapshot) => {
+        const comment = snapshot.docs.map((doc) => {
+          const listComment = doc.data();
 
-            const data = {
-              id: doc.id,
-              text: doc.data().text,
-              creator: doc.data().creator,
-              ...listComment,
-            };
-            return data;
-          });
-          setComments(comment);
-          setPostId(route.params.postId);
-          // flatlistRef.current.scrollToEnd({animating: false});
+          const data = {
+            id: doc.id,
+            text: doc.data().text,
+            creator: doc.data().creator,
+            ...listComment,
+          };
+
+          return data;
         });
-    }
+
+        setComments(comment);
+
+        // flatlistRef.current.scrollToEnd({animating: false});
+      });
   };
 
   const postComment = () => {
@@ -96,13 +82,49 @@ export const Comment = ({navigation, route}) => {
       );
   };
 
+  const loadMore = async () => {
+    await firestore()
+      .collection('posts')
+      .doc(route.params.postId)
+      .collection('comments')
+      .orderBy('createdAt', 'asc')
+      .limitToLast(limit + 4)
+      .onSnapshot((snapshot) => {
+        const comment = snapshot.docs.map((doc) => {
+          const listComment = doc.data();
+
+          const data = {
+            id: doc.id,
+            text: doc.data().text,
+            creator: doc.data().creator,
+            ...listComment,
+          };
+          return data;
+        });
+        setComments([...comment]);
+        setLimit(limit + 4);
+      });
+  };
+
   useEffect(() => {
     fetchComment();
   }, []);
 
   return (
     <View style={styles.container}>
-      <Header header="Comment" navigation={navigation} />
+      <Header header={`Comment: ${comments.length}`} navigation={navigation} />
+      {/* {limit > comments.length ? null : ( */}
+      <TouchableOpacity onPress={() => loadMore()}>
+        <Text
+          style={{
+            color: colorStyles.dodgerBlue,
+            fontSize: 18,
+            fontWeight: 'bold',
+          }}>
+          Load more...
+        </Text>
+      </TouchableOpacity>
+      {/* )} */}
 
       <FlatList
         horizontal={false}
@@ -117,16 +139,16 @@ export const Comment = ({navigation, route}) => {
           <CommentText
             creator={item.creator}
             text={item.text}
-            postId={postId}
             id={item.id}
             onDelete={deleteComment}
           />
         )}
+        keyExtractor={(item) => item.id}
       />
 
       <View
         style={{
-          backgroundColor: '#d7d7d7',
+          backgroundColor: colorStyles.alto,
           borderRadius: 25,
           flexDirection: 'row',
           alignItems: 'center',
@@ -160,7 +182,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: colorStyles.white,
-    paddingBottom: 15,
+    // paddingBottom: 15,
     width: '100%',
   },
 });

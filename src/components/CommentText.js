@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import Modal from 'react-native-modal';
+import FastImage from 'react-native-fast-image';
 
 import {AuthContext} from '../navigation/AuthProvider';
 import {colorStyles} from '../styles';
@@ -44,7 +45,7 @@ export const CommentText = ({creator, text, id, onDelete}) => {
   if (loading)
     return (
       <View>
-        <Text>Loading...</Text>
+        <Text>Loading</Text>
       </View>
     );
 
@@ -58,7 +59,9 @@ export const CommentText = ({creator, text, id, onDelete}) => {
         justifyContent: 'flex-start',
       }}>
       <Image
-        source={{uri: 'https://www.w3schools.com/howto/img_avatar.png'}}
+        source={{
+          uri: userData.userImg,
+        }}
         style={{
           height: 50,
           width: 50,
@@ -68,7 +71,9 @@ export const CommentText = ({creator, text, id, onDelete}) => {
       />
       <Pressable
         style={{
-          backgroundColor: isUser ? colorStyles.denim : '#d7d7d7',
+          backgroundColor: isUser
+            ? colorStyles.cornFlowerBlue
+            : colorStyles.alto,
           paddingVertical: 5,
           paddingHorizontal: 10,
           borderRadius: 17,
@@ -90,7 +95,7 @@ export const CommentText = ({creator, text, id, onDelete}) => {
               width: '60%',
               justifyContent: 'space-around',
               alignItems: 'center',
-              backgroundColor: '#fff',
+              backgroundColor: colorStyles.white,
               padding: 20,
               borderRadius: 10,
             }}>

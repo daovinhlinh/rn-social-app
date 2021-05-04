@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  Button,
-} from 'react-native';
+import {View, StyleSheet, TextInput, Button} from 'react-native';
 
 export const MessageScreen = ({navigation}) => {
   return (

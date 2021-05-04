@@ -15,7 +15,6 @@ import {
 
 import storage from '@react-native-firebase/storage';
 import firestore from '@react-native-firebase/firestore';
-
 import ImagePicker from 'react-native-image-crop-picker';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -32,32 +31,22 @@ const ImageContainer = ({image, onDelete}) => {
       <TouchableOpacity
         style={{zIndex: 1, top: 30, alignSelf: 'flex-end'}}
         onPress={onDelete}>
-        <Ionicons name="close-circle" color="#fff" size={25} />
+        <Ionicons name="close-circle" color={colorStyles.white} size={25} />
       </TouchableOpacity>
       <Image source={{uri: image}} style={{width: '100%', height: 100}} />
     </View>
   );
 };
 
-export const AddPostScreen = ({navigation}) => {
+export const EditPost = ({navigation, route}) => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [transferred, setTransferred] = useState(0);
-  const [userData, setUserdata] = useState(null);
-  const [post, setPost] = useState(null);
+  // const [userData, setUserdata] = useState(null);
+  const [post, setPost] = useState(route.params?.post);
   const {user} = useContext(AuthContext);
 
-  const getUser = async () => {
-    await firestore()
-      .collection('users')
-      .doc(user.uid)
-      .get()
-      .then((snapshot) => {
-        if (snapshot.exists) {
-          setUserdata(snapshot.data());
-        }
-      });
-  };
+  const {userData, postId} = route.params;
 
   const takePhotoFromCamera = () => {
     ImagePicker.openCamera({
@@ -80,32 +69,7 @@ export const AddPostScreen = ({navigation}) => {
     }).then((image) => {
       const imageUri = Platform.OS === 'ios' ? image.sourceURL : image.path;
       console.log(imageUri);
-      // setImage(imageUri);
     });
-  };
-
-  const submitPost = async () => {
-    setLoading(true);
-    let imgUrl = await postImage();
-    firestore()
-      .collection('posts')
-      .add({
-        userId: user.uid,
-        post: post,
-        postImg: imgUrl,
-        postTime: firestore.Timestamp.fromDate(new Date()),
-        likes: 0,
-        comments: 0,
-      })
-      .then(() => {
-        Alert.alert('Uploaded', 'Your post has been uploaded!');
-        setLoading(false);
-        setPost(null);
-        navigation.navigate('Home');
-      })
-      .catch((e) => {
-        console.log(e);
-      });
   };
 
   const postImage = async () => {
@@ -146,24 +110,39 @@ export const AddPostScreen = ({navigation}) => {
     return urlData;
   };
 
-  useEffect(() => {
-    getUser();
-  }, []);
+  const handleUpdate = async () => {
+    firestore()
+      .collection('posts')
+      .doc(postId)
+      .update({
+        post: post,
+      })
+      .then(() => {
+        alert('Updated!');
+        navigation.navigate('Home');
+      });
+  };
+
   return (
     <View style={styles.container}>
       <Header
-        header="Add post"
-        btnText="post"
-        bgColor={images ? '#3360ff' : '#acacac' || post ? '#3360ff' : '#acacac'}
+        header="Edit post"
+        btnText="save"
+        bgColor={
+          images !== null || post !== null
+            ? colorStyles.dodgerBlue
+            : colorStyles.silver
+        }
         navigation={navigation}
-        onPress={images ? submitPost : null || post ? submitPost : null}
+        onPress={images !== null || post !== null ? handleUpdate : null}
+        disabled={images !== null || post !== null ? false : true}
       />
       <Spinner
         visible={loading}
         animation="fade"
         textContent={`Uploading...${transferred}%`}
         color="white"
-        textStyle={{fontWeight: 'normal', color: 'white'}}
+        textStyle={{fontWeight: 'normal', color: colorStyles.white}}
       />
       <View style={{flex: 1}}>
         <View style={styles.header}>
@@ -207,30 +186,6 @@ export const AddPostScreen = ({navigation}) => {
             horizontal={true}
           />
         </View>
-        <View style={styles.attachBar}>
-          <Pressable
-            onPress={takePhotoFromLibrary}
-            style={({pressed}) => [
-              {
-                backgroundColor: pressed ? '#d8d8d8' : '#fff',
-              },
-              styles.attachBtn,
-            ]}>
-            <Ionicons name="image" color="#00A400" size={30} />
-            <Text style={{marginLeft: 10}}>Add Photos</Text>
-          </Pressable>
-          <Pressable
-            onPress={takePhotoFromCamera}
-            style={({pressed}) => [
-              {
-                backgroundColor: pressed ? '#d8d8d8' : '#fff',
-              },
-              styles.attachBtn,
-            ]}>
-            <Ionicons name="camera" color="#3360ff" size={30} />
-            <Text style={{marginLeft: 10}}>Capture Photo</Text>
-          </Pressable>
-        </View>
       </View>
     </View>
   );
@@ -241,7 +196,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
+    backgroundColor: colorStyles.white,
   },
   avatar: {
     width: 40,
@@ -269,9 +224,8 @@ const styles = StyleSheet.create({
     height: 50,
     width: width,
     alignItems: 'center',
-    borderTopColor: '#acacac',
+    borderTopColor: colorStyles.silver,
     borderTopWidth: 0.5,
-    elevation: 2,
   },
   attachBtn: {
     flexDirection: 'row',

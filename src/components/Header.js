@@ -8,22 +8,46 @@ import {
 } from 'react-native';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {colorStyles} from '../styles';
 
 const {width, height} = Dimensions.get('screen');
 
-export const Header = ({header, btnText, bgColor, navigation, onPress}) => {
+export const Header = ({
+  header,
+  btnText,
+  bgColor,
+  navigation,
+  onPress,
+  disabled,
+}) => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={{flex: 1}} onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back-outline" size={25} color="#000" />
-      </TouchableOpacity>
+      <View style={{flex: 1}}>
+        <TouchableOpacity
+          style={{width: '20%'}}
+          onPress={() => navigation.goBack()}>
+          {navigation ? (
+            <Ionicons
+              name="arrow-back-outline"
+              size={25}
+              color={colorStyles.black}
+            />
+          ) : null}
+        </TouchableOpacity>
+      </View>
+
       <Text style={styles.header}>{header}</Text>
       {btnText ? (
-        <TouchableOpacity style={{flex: 1}} onPress={onPress}>
-          <Text style={[styles.btnText, {backgroundColor: bgColor}]}>
-            {btnText}
-          </Text>
-        </TouchableOpacity>
+        <View style={{flex: 1, alignItems: 'flex-end'}}>
+          <TouchableOpacity
+            style={{width: '70%'}}
+            onPress={onPress}
+            disabled={disabled}>
+            <Text style={[styles.btnText, {backgroundColor: bgColor}]}>
+              {btnText}
+            </Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <View style={{flex: 1}}></View>
       )}
